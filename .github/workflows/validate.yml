@@ -1,0 +1,30 @@
+name: Validate skill and maintenance tools
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan public snapshot for secrets
+        run: docker run --rm --volume "$GITHUB_WORKSPACE:/repo:ro" ghcr.io/gitleaks/gitleaks:v8.30.1 dir /repo --redact --no-banner
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Regress maintenance behavior
+        run: python3 -m unittest discover -s template-source/workspace/scripts/tests -t template-source/workspace/scripts -v
+      - name: Check source, skill and generated bundle
+        run: python3 scripts/validate_repo.py
+      - name: Exercise isolated install and scaffold safety
+        run: python3 -m unittest discover -s scripts/tests -v

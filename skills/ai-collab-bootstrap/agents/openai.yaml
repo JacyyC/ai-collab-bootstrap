@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI 协作工作区引导"
+  short_description: "为长期维护项目建立、更新或整理协作工作区，保留既有代码布局并核对验证证据"
+  default_prompt: "使用 $ai-collab-bootstrap，为当前项目建立必要的协作工作区并保留现有代码布局。"

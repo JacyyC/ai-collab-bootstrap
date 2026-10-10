@@ -1,0 +1,30 @@
+# IDE and operating system
+.idea/
+.DS_Store
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Private runtime data
+data/
+logs/
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+
+# Local dependencies, caches, and build output
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/node_modules/
+**/dist/
+**/build/
+**/coverage/
+
+# AI 协作工具临时文件
+workspace/.migration-state.json
+workspace/.check-exceptions.json
