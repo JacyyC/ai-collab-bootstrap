@@ -1,6 +1,8 @@
 # 验证与适用边界
 
-验证日期：2026-10-10（Asia/Shanghai）。本地环境：macOS、Python 3.13.12、Git。CI 配置覆盖 Ubuntu Python 3.10/3.12/3.13，另用 Gitleaks 8.30.1 容器扫描快照；本次没有推送到 GitHub，不能宣称该矩阵或容器任务已运行。
+验证日期：2026-10-10（Asia/Shanghai）。本地环境：macOS、Python 3.13.12、Git。
+
+GitHub [首次 CI](https://github.com/JacyyC/ai-collab-bootstrap/actions/runs/38052513452) 对提交 `a21138b99cc4f66d1bd0d4c47dac1d9d2bfdb13e` 的 Ubuntu Python 3.10/3.12/3.13 检查，以及 Gitleaks 8.30.1 快照扫描全部通过。下面保留本地准备阶段的实测结果；后续提交以其对应 Actions 为准。
 
 | 验证 | 实际结果 | 能证明什么 |
 |---|---|---|

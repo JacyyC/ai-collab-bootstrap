@@ -2,6 +2,8 @@
 
 一个中文 Agent Skill，为长期维护的软件项目建立、更新或整理 AI 协作工作区：把实际代码与产品说明留在原布局，把范围、交接和验证证据放在 `workspace/`。
 
+[![检查](https://github.com/JacyyC/ai-collab-bootstrap/actions/workflows/validate.yml/badge.svg)](https://github.com/JacyyC/ai-collab-bootstrap/actions/workflows/validate.yml)
+
 **适合**已经需要多轮迭代、工作交接和事实追溯的项目。**普通阅读、一次性问答和微小修改**无需引入完整工作区。它不是生产监控、自动运维或无人值守部署工具。
 
 ## 能提供什么
@@ -84,6 +86,8 @@ python3 -m unittest discover -s scripts/tests -v
 
 ## 发布状态和许可
 
-当前是 **v0.1.0 发布候选**，已完成本地结构、工具回归和隔离安装验证；尚未在 GitHub 执行 CI，也未完成跨客户端或独立模型行为测试。
+当前开源版本为 **v0.1.0**，已完成本地结构、工具回归和隔离安装验证；GitHub 首次 CI 的 Python 3.10/3.12/3.13 与敏感扫描全部通过。下载见 [GitHub Releases](https://github.com/JacyyC/ai-collab-bootstrap/releases)。跨客户端和独立模型行为尚未实测，见 [验证说明](docs/VALIDATION.md)。
 
 源码、文档和可安装 skill 采用 [MIT 许可证](LICENSE)，版权署名 JacyyC。维护者已确认公开及授权权利。发布记录见 [发布清单](docs/RELEASE_CHECKLIST.md)和 [来源与授权](docs/PROVENANCE.md)。
+
+安全问题通过 [私密漏洞报告](SECURITY.md)提交。

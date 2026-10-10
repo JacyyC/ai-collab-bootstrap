@@ -13,13 +13,13 @@
 
 - [x] 维护者确认有权公开源码与文档，采用 MIT，版权署名 JacyyC；已启用正式许可证。
 - [x] 维护者授权在 `JacyyC/ai-collab-bootstrap` 公开发布；中文展示名为「AI 协作 · 长期维护工作区」。
-- [ ] 对公开快照作最终人工复核（自动扫描不证明绝对无敏感内容）。
+- [x] 复核公开文件清单、安装入口、许可与文档；自动扫描不证明绝对无敏感内容。
 
 ## 执行发布时
 
-- [ ] 使用这个审查后的新快照，不导入未经审查的原 Git 历史。
-- [ ] 初始化独立仓库并检查完整 diff；提交身份由维护者配置。
-- [ ] 创建远程，推送后确认 GitHub Actions 实际通过。
-- [ ] 建立 `v0.1.0` tag / Release，写清限制与验证范围。
+- [x] 使用审查后的新快照，没有导入原 Git 历史。
+- [x] 初始化独立 `main`，检查完整 diff；采用 JacyyC 的 GitHub noreply 提交邮箱。
+- [x] 创建[公开仓库](https://github.com/JacyyC/ai-collab-bootstrap)，首次推送的 GitHub Actions 全部通过；详情见 [验证说明](VALIDATION.md)。
+- 首版 tag / Release：`v0.1.0`，下载和公开状态以 [Releases](https://github.com/JacyyC/ai-collab-bootstrap/releases) 为准；发布说明包含验证范围和使用边界。
 
-发布授权已确认；独立 Git 快照、远程推送及 GitHub Actions 的实际结果在完成后记录。
+已启用私密漏洞报告。原始来源目录未修改，可安装包未安装到维护者的客户端环境。
