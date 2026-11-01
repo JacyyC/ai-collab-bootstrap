@@ -15,7 +15,7 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 
-from markdown_checks import without_fences
+from markdown_checks import LINK_RE, REFERENCE_RE, local_target, without_fences
 
 
 WORKSPACE = Path(__file__).resolve().parents[1]
@@ -195,6 +195,68 @@ def stage_is_defined(text: str, stage: str) -> bool:
     return False
 
 
+def record_entry_targets(path: Path, text: str, item: Item) -> set[Path]:
+    """Resolve actual README navigation, excluding examples and tool results."""
+    body = text.split("---", 2)[2] if text.startswith("---\n") else text
+    body = re.sub(r"<!--.*?-->", "", without_fences(body), flags=re.DOTALL)
+    body = re.sub(r"(`+).*?\1", "", body)
+    raw_targets = [match.group(1) for match in LINK_RE.finditer(body)]
+    definitions = {
+        " ".join(match.group(1).split()).casefold(): match.group(2)
+        for match in re.finditer(r"^\s{0,3}\[([^\]\n]+)\]:\s*(<[^>\n]+>|\S+)", body, re.MULTILINE)
+    }
+    prose = REFERENCE_RE.sub("", body)
+    for match in re.finditer(r"\[([^\]\n]+)\](?:\[([^\]\n]*)\])?", prose):
+        label = " ".join((match.group(2) or match.group(1)).split()).casefold()
+        if label in definitions:
+            raw_targets.append(definitions[label])
+    raw_targets.extend(item.value(field) for field in ("spec", "plan") if item.value(field))
+    targets: set[Path] = set()
+    for raw in raw_targets:
+        target, _ = local_target(path, raw)
+        if target is not None:
+            targets.add(target.resolve())
+    return targets
+
+
+def validate_record_layout(path: Path, text: str, item: Item) -> None:
+    """Check current records without migrating frozen or archived history."""
+    if item.value("status") in TERMINAL or item.value("document_status") == "archived":
+        return
+    targets = record_entry_targets(path, text, item)
+    standard = {"README.md", "spec.md", "plan.md", "log.md", "evidence.md"}
+    problems: list[str] = []
+    artifact_files: list[Path] = []
+    for child in sorted(path.parent.rglob("*")):
+        if not child.is_file():
+            continue
+        relative = child.relative_to(path.parent)
+        if "archive" in relative.parts:
+            continue
+        if relative.parts[0] == "artifacts":
+            artifact_files.append(child)
+            continue
+        if child.suffix.lower() != ".md":
+            continue
+        if len(relative.parts) == 1 and child.name in standard:
+            if child != path and child.resolve() not in targets:
+                problems.append(f"缺少 README 入口: {relative.as_posix()}")
+            continue
+        if relative.parts[0] != "topics" or len(relative.parts) < 2:
+            problems.append(f"非约定记录路径: {relative.as_posix()}；归入已有正文，独立专题放 topics/")
+            continue
+        names = (*relative.parts[1:-1], child.stem)
+        if child.suffix != ".md" or any(not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) for name in names):
+            problems.append(f"专题命名须用小写英文、数字和连字符: {relative.as_posix()}")
+        if child.resolve() not in targets:
+            problems.append(f"缺少 README 入口: {relative.as_posix()}")
+    artifacts = (path.parent / "artifacts").resolve()
+    if artifact_files and not any(target == artifacts or artifacts in target.parents for target in targets):
+        problems.append("缺少 README 入口: artifacts/；链接目录或关键原始产物并说明用途")
+    if problems:
+        raise ValueError("；".join(problems))
+
+
 def validate_schema4(path: Path, item: Item) -> None:
     for key in REQUIRED_SCHEMA4:
         if not item.value(key):
@@ -210,6 +272,7 @@ def validate_schema4(path: Path, item: Item) -> None:
     if (CHECK_START in original or CHECK_END in original) and (original.count(CHECK_START) != 1 or original.count(CHECK_END) != 1 or original.index(CHECK_START) > original.index(CHECK_END)):
         raise ValueError("工具检查受控区块标记必须恰好各一个且顺序正确")
     text = without_tool_results(original)
+    validate_record_layout(path, text, item)
     prose = re.sub(r"`[^`\n]*`", "", without_fences(text))
     if item.value("status") != "planned" and re.search(r"<(?:[A-Z][A-Z0-9_-]*|[\u3400-\u9fff][^>\n]*)>|^\s*待(?:填写|补充)[：:]", prose, re.MULTILINE):
         raise ValueError("实际工作项仍有未填写占位符；planned 草稿可保留，执行前须填写范围与验收")

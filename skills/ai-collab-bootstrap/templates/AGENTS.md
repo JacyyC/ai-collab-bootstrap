@@ -19,6 +19,7 @@ governance_schema: 4
 
 - 用户确认的范围和验收条件先明确；实现与验证不能为了提前结束而缩减范围。
 - 小任务在工作项 README 写目标、边界、AC、必要决定和验证；多阶段或复杂任务按需拆 Spec、Plan、Log、Evidence。
+- 新增记录先归入已有正文；拆分使用约定文件名并从 README 建立入口，不按对话轮次、执行阶段或交接次数另建总结。确有独立用途的专题与原始产物按 [Lifecycle](workspace/docs/DOCUMENT_LIFECYCLE.md) 归位、命名和链接。
 - 状态、Stage、下一步只维护 README YAML；正文补充原因、风险与交接背景。详细规则见 [Lifecycle](workspace/docs/DOCUMENT_LIFECYCLE.md)。
 - 普通实施不逐命令写文档；可交接检查点、暂停或完成时更新当前记录，稳定能力或架构改变时同步实际受影响正文。
 - 完成前对照 AC 与实际结果。没运行的检查写未运行，工具结构检查不能替代业务验收。

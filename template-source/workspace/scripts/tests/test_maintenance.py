@@ -71,9 +71,10 @@ class MaintenanceBehaviorTests(unittest.TestCase):
             self.assertEqual(self.fixture.snapshot()[name], content)
 
     def test_long_task_stage_and_shared_spec(self) -> None:
-        first = self.fixture.item("LONG-01", status="planned")
+        first = self.fixture.item("LONG-01", status="planned", spec="./spec.md")
         (first.parent / "spec.md").write_text(document("共享范围", "## 范围\n\n两个维护入口共同使用相同验收边界。\n\nAC-01：入口可访问。", work_item="LONG-01"), encoding="utf-8")
-        self.fixture.item("LONG-02", stage="LONG-02A", spec="../long-01/spec.md")
+        self.fixture.item("LONG-02", stage="LONG-02A", spec="../long-01/spec.md",
+                          body_extra="[实施计划](plan.md)：阶段与验证入口。\n")
         self.fixture.write("workspace/docs/work-items/records/long-02/plan.md", document("分阶段实施", "## Stage\n\n| ID | 目标 |\n|---|---|\n| LONG-02A | 更新入口并验证 |", work_item="LONG-02"))
         self.fixture.refresh()
         self.check()
@@ -96,7 +97,7 @@ class MaintenanceBehaviorTests(unittest.TestCase):
         self.assertFalse((readme.parent / "plan.md").exists())
 
     def test_stage_can_be_inline_when_an_optional_plan_defines_other_stages(self) -> None:
-        readme = self.fixture.item("TEST-01", stage="TEST-01B")
+        readme = self.fixture.item("TEST-01", stage="TEST-01B", body_extra="[实施计划](plan.md)：第一阶段的详细步骤。\n")
         readme.write_text(readme.read_text().replace("读取链接目标、修复入口并验证", "- TEST-01B：核对第二阶段成果"), encoding="utf-8")
         (readme.parent / "plan.md").write_text(document("第一阶段计划", "## Stage\n\n| ID | 目标 |\n|---|---|\n| TEST-01A | 核对第一阶段成果 |", work_item="TEST-01"), encoding="utf-8")
         self.fixture.refresh()
@@ -253,7 +254,7 @@ class MaintenanceBehaviorTests(unittest.TestCase):
         readme = self.fixture.item("TEST-01", status="completed")
         text = readme.read_text().replace("- AC-01：入口可访问，用户文件内容保持原样。", "- AC-01：入口可访问，用户文件内容保持原样。\n- AC-02：另一入口也必须通过核对。")
         self.rejected(text)
-        owner = self.fixture.item("SCOPE-01", status="planned")
+        owner = self.fixture.item("SCOPE-01", status="planned", spec="./spec.md")
         (owner.parent / "spec.md").write_text(document("共享合同", "## 验收\n\n- AC-01：入口存在。\n- AC-02：用户内容未改变。", work_item="SCOPE-01"), encoding="utf-8")
         readme = self.fixture.item("TEST-01", status="completed", spec="../scope-01/spec.md")
         self.rejected(readme.read_text())
