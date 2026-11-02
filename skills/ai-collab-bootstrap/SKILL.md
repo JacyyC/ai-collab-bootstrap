@@ -44,7 +44,7 @@ description: 为项目建立、升级或整理 AI 协作工作区，安装长期
 python3 workspace/scripts/maintain.py --new TASK-01 --title "明确的工作目标"
 ```
 
-新 Schema 4 小工作项只需 README，内含目标、范围、验收条件、下一步和实际验证；新增记录优先归入已有正文，不按轮次或阶段生成总结副本。确需拆分时遵守 [Lifecycle 模板](templates/workspace/docs/DOCUMENT_LIFECYCLE.md#文件组织与命名) 的命名、归属与 README 入口规则。无 Git 项目不伪造分支或提交哈希，Git 检查记为不适用。
+新 Schema 4 小工作项只需 README，内含目标、范围、验收条件、下一步和实际验证。新授权、范围变化与返修安排按 [Policy](templates/workspace/docs/DOCUMENTATION_POLICY.md#现行约定与历史依据) 回流现有范围/计划或 Spec/Plan，结果进入验证记录；更新现行段落，不按轮次生成“最新授权/当前技术门”副本。仅需独立保存、引用或复核的附件才按 [Lifecycle](templates/workspace/docs/DOCUMENT_LIFECYCLE.md#文件组织与命名) 分类、命名和登记。无 Git 项目不伪造分支或提交哈希，Git 检查记为不适用。
 
 ## 更新
 

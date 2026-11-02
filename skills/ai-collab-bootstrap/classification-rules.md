@@ -29,6 +29,8 @@
 
 `spec.md`、`plan.md`、`log.md`、`evidence.md` 及“规划/进度/决策”等名称可提示工作文档，但也可能属于业务功能或产品手册；核对入口和正文后再迁移。Schema 4 的单页 README 已可承载小工作项，不为了分类强行拆成五个文件。
 
+工作项内优先按 [现行约定与历史依据](templates/workspace/docs/DOCUMENTATION_POLICY.md#现行约定与历史依据) 回流内容：范围/授权约束进入 Spec，安排/返修/准入条件进入 Plan，实际结果进入 Evidence，重要变更原因进入 Log；单页项使用对应章节。仅独立专题和需留存、引用或复核的原件/报告另存，按 [文件组织](templates/workspace/docs/DOCUMENT_LIFECYCLE.md#文件组织与命名) 归入 topics 或分组 artifacts。历史原件不为合并现行说明而改写；检查代码中的固定路径、文件扫描和哈希绑定。
+
 WORK、HISTORY 和工作项管理入口由 README 数据派生。散落的进度或历史文档需要先归入正确工作项或保留为旧资料，不能直接合并进派生受控区块。
 
 ## 内容核对

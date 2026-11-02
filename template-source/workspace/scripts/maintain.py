@@ -134,6 +134,8 @@ def new_item(root: Path, item_id: str, title: str) -> tuple[Path, list[str]]:
         "", "## 交接", "", "当前无执行记录；基线在创建时采集，检查点不会覆盖它。",
         "", "## 验证", "", "| 验收 | 状态 | 方法或命令 | 结果或证据 | 限制 |", "|---|---|---|---|---|",
         "| AC-01 | pending | 未运行 | 未验证 | 范围和验收条件待填写 |", "",
+        "新授权与返修安排更新现有范围/计划，实际结果进入验证；内容归属见 workspace/docs/DOCUMENTATION_POLICY.md。",
+        "仅需独立保存、引用或复核的附件按 workspace/docs/DOCUMENT_LIFECYCLE.md 分类、命名和登记。", "",
     ])
     template = root / "workspace/templates/work-item/README.md"
     if template.is_file() and frontmatter(template).get("schema_version", "").strip("'\"") == "4":

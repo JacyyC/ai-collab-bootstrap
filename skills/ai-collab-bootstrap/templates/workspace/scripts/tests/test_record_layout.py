@@ -58,8 +58,8 @@ class RecordLayoutTests(unittest.TestCase):
             self.write(name)
         self.write("topics/data-migration.md")
         self.write("topics/api-v2/contract.md", "# 协议\n\n## 范围\n\n迁移协议的独立说明。\n")
-        self.write("artifacts/Test Report.MD", "# 工具输出\n\n机器报告保留原名称。\n")
-        self.write("artifacts/raw-output.log", "exit=0\n")
+        self.write("artifacts/r4/c10/Test Report.MD", "# 工具输出\n\n机器报告保留原名称。\n")
+        self.write("artifacts/r4/c10/raw-output.log", "exit=0\n")
         self.fixture.refresh()
         before = self.fixture.snapshot()
         self.fixture.script("maintain.py", "--check")
@@ -113,17 +113,75 @@ class RecordLayoutTests(unittest.TestCase):
                 self.fixture.script("maintain.py", "--check")
 
     def test_artifacts_need_a_directory_or_key_file_entry(self) -> None:
-        self.write("artifacts/Test Run.log", "actual raw output\n")
+        self.write("artifacts/checks/Test Run.log", "actual raw output\n")
         self.assert_layout_error("缺少 README 入口: artifacts/")
         original = self.readme.read_text()
         for entry in (
             "[原始日志](artifacts/)：工具输出。",
-            "[关键日志](artifacts/Test%20Run.log)：本次执行结果。",
+            "[关键日志](artifacts/checks/Test%20Run.log)：本次执行结果。",
         ):
             with self.subTest(entry=entry):
                 self.readme.write_text(original + "\n" + entry + "\n", encoding="utf-8")
                 self.fixture.refresh()
                 self.fixture.script("maintain.py", "--check")
+
+    def test_machine_outputs_outside_artifacts_are_rejected_without_changes(self) -> None:
+        for name in ("verification.json", "test-output.log", "topics/measurements.json"):
+            with self.subTest(name=name):
+                extra = self.write(name, '{"observed": true}\n')
+                self.assert_layout_error(f"非约定产物路径: {name}")
+                extra.unlink()
+
+    def test_artifacts_need_classification_even_with_a_readme_entry(self) -> None:
+        self.readme.write_text(self.readme.read_text() + "\n[附件](artifacts/)：实际输出。\n", encoding="utf-8")
+        self.write("artifacts/verification.json", '{"passed": false}\n')
+        self.assert_layout_error("附件缺少分类或批次目录: artifacts/verification.json")
+
+    def test_artifact_directory_names_are_checked_but_original_filenames_are_kept(self) -> None:
+        self.readme.write_text(self.readme.read_text() + "\n[附件](artifacts/)：原始结果。\n", encoding="utf-8")
+        for name in ("artifacts/BadDir/report.json", "artifacts/r4/candidate_10/report.json"):
+            with self.subTest(name=name):
+                extra = self.write(name, "{}\n")
+                self.assert_layout_error("附件目录命名须用小写英文、数字和连字符")
+                extra.unlink()
+
+    def test_linked_evidence_can_index_batches_and_keep_original_authorization_bytes(self) -> None:
+        self.readme = self.fixture.item("TEST-01", body_extra="[验证依据](evidence.md)：按批次查询。\n")
+        self.write("evidence.md", "# 验证依据\n\n[本轮结果](artifacts/r4/c10/execution.json)：实际失败。\n\n"
+                   "[授权原件](artifacts/authorizations/2026-11-02-extension.md)：保留用户来源。\n")
+        result = self.write("artifacts/r4/c10/execution.json", '{"source_commit": "observed", "passed": false}\n')
+        authorization = self.write("artifacts/authorizations/2026-11-02-extension.md", "# 授权原件\n\n用户原话与来源引用，保持原始内容。\n")
+        original = {p: p.read_bytes() for p in (result, authorization)}
+        self.fixture.refresh()
+        self.fixture.script("maintain.py", "--check")
+        self.fixture.script("maintain.py", "--checkpoint", "TEST-01")
+        for p, content in original.items():
+            self.assertEqual(p.read_bytes(), content)
+        self.assertNotIn("artifacts/", self.readme.read_text())
+
+    def test_unlinked_or_example_only_evidence_cannot_hide_missing_artifact_entry(self) -> None:
+        self.write("artifacts/r4/c10/execution.json", "{}\n")
+        self.write("evidence.md", "# 证据\n\n[附件](artifacts/)\n")
+        self.assert_layout_error("缺少 README 入口: evidence.md")
+        self.readme = self.fixture.item("TEST-01", body_extra="[证据](evidence.md)：实际验证。\n")
+        for entry in (
+            "`[附件](artifacts/)`",
+            "<!-- [附件](artifacts/) -->",
+            "<!-- maintenance-check:start -->\n[附件](artifacts/)\n<!-- maintenance-check:end -->",
+        ):
+            with self.subTest(entry=entry):
+                self.write("evidence.md", "# 证据\n\n" + entry + "\n")
+                self.assert_layout_error("缺少 README 入口: artifacts/")
+
+    def test_closed_records_keep_unclassified_machine_outputs(self) -> None:
+        for status in ("completed", "cancelled"):
+            with self.subTest(status=status):
+                self.readme = self.fixture.item("TEST-01", status=status)
+                original = self.write("old-verification.json", '{"old_result": true}\n')
+                self.fixture.refresh()
+                before = original.read_bytes()
+                self.fixture.script("maintain.py", "--checkpoint", "TEST-01")
+                self.assertEqual(original.read_bytes(), before)
 
     def test_archived_subtree_does_not_need_migration(self) -> None:
         self.write("archive/Old Summary.MD")

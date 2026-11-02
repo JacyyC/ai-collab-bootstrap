@@ -195,9 +195,11 @@ def stage_is_defined(text: str, stage: str) -> bool:
     return False
 
 
-def record_entry_targets(path: Path, text: str, item: Item) -> set[Path]:
-    """Resolve actual README navigation, excluding examples and tool results."""
-    body = text.split("---", 2)[2] if text.startswith("---\n") else text
+def record_entry_targets(path: Path, text: str, item: Item | None = None) -> set[Path]:
+    """Resolve document navigation, excluding examples and tool results."""
+    text = without_tool_results(text)
+    parts = text.split("---", 2) if text.startswith("---\n") else []
+    body = parts[2] if len(parts) == 3 else text
     body = re.sub(r"<!--.*?-->", "", without_fences(body), flags=re.DOTALL)
     body = re.sub(r"(`+).*?\1", "", body)
     raw_targets = [match.group(1) for match in LINK_RE.finditer(body)]
@@ -210,7 +212,8 @@ def record_entry_targets(path: Path, text: str, item: Item) -> set[Path]:
         label = " ".join((match.group(2) or match.group(1)).split()).casefold()
         if label in definitions:
             raw_targets.append(definitions[label])
-    raw_targets.extend(item.value(field) for field in ("spec", "plan") if item.value(field))
+    if item is not None:
+        raw_targets.extend(item.value(field) for field in ("spec", "plan") if item.value(field))
     targets: set[Path] = set()
     for raw in raw_targets:
         target, _ = local_target(path, raw)
@@ -225,18 +228,34 @@ def validate_record_layout(path: Path, text: str, item: Item) -> None:
         return
     targets = record_entry_targets(path, text, item)
     standard = {"README.md", "spec.md", "plan.md", "log.md", "evidence.md"}
+    artifact_targets = set(targets)
+    # Linked living documents can index batches without growing the README.
+    for source in sorted(targets):
+        try:
+            relative = source.relative_to(path.parent.resolve())
+        except ValueError:
+            continue
+        if source == path.resolve() or not source.is_file() or source.suffix.lower() != ".md":
+            continue
+        if (len(relative.parts) == 1 and source.name in standard) or relative.parts[0] == "topics":
+            artifact_targets.update(record_entry_targets(source, source.read_text(encoding="utf-8")))
     problems: list[str] = []
     artifact_files: list[Path] = []
     for child in sorted(path.parent.rglob("*")):
         if not child.is_file():
             continue
         relative = child.relative_to(path.parent)
-        if "archive" in relative.parts:
+        if "archive" in relative.parts or child.name in {".gitkeep", ".DS_Store"}:
             continue
         if relative.parts[0] == "artifacts":
             artifact_files.append(child)
+            if len(relative.parts) < 3:
+                problems.append(f"附件缺少分类或批次目录: {relative.as_posix()}")
+            elif any(not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) for name in relative.parts[1:-1]):
+                problems.append(f"附件目录命名须用小写英文、数字和连字符: {relative.as_posix()}")
             continue
         if child.suffix.lower() != ".md":
+            problems.append(f"非约定产物路径: {relative.as_posix()}；附件放 artifacts/<类别或批次>/")
             continue
         if len(relative.parts) == 1 and child.name in standard:
             if child != path and child.resolve() not in targets:
@@ -251,7 +270,7 @@ def validate_record_layout(path: Path, text: str, item: Item) -> None:
         if child.resolve() not in targets:
             problems.append(f"缺少 README 入口: {relative.as_posix()}")
     artifacts = (path.parent / "artifacts").resolve()
-    if artifact_files and not any(target == artifacts or artifacts in target.parents for target in targets):
+    if artifact_files and not any(target == artifacts or artifacts in target.parents for target in artifact_targets):
         problems.append("缺少 README 入口: artifacts/；链接目录或关键原始产物并说明用途")
     if problems:
         raise ValueError("；".join(problems))
