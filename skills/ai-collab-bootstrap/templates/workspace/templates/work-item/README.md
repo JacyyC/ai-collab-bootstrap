@@ -33,6 +33,8 @@ next_action: 明确目标与验收条件
 |---|---|---|---|---|
 | AC-01 | pending | 未运行 | 尚无结果 | <未覆盖范围> |
 
+局部低风险问题定点处理；复杂、反复或高风险问题按 `workspace/docs/DOCUMENT_LIFECYCLE.md` 扩大诊断并重评估。必要假设与安排回流本页计划，适用旧证据、实际结果与限制进入验证；经验按 Policy 回流测试、合同或说明，不另建进度表。
+
 运行代码、测试与脚本按 `workspace/docs/PROJECT_LAYOUT.md` 进入所属模块并在模块内分类、命名和区分实际兼容版本，本页引用实现。检查点前核对任务内新增、改名与未跟踪文件及临时代码去向，验证区简述实际审查结果。
 
 新授权、范围和返修安排更新现有范围/计划章节，实际结果进入验证章节；不追加多份“最新授权/当前技术门”。内容较多时按 `workspace/docs/DOCUMENTATION_POLICY.md` 回流 Spec/Plan/Log/Evidence，本页保留当前入口。仅需独立保存、引用或复核的附件按 `workspace/docs/DOCUMENT_LIFECYCLE.md` 分类、命名和登记。状态与下一步只维护 YAML；工具检查点块不代替业务验收。

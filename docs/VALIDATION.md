@@ -57,3 +57,18 @@ python3 -B -m unittest discover -s scripts/tests -v
 - `python3 scripts/sync_templates.py --write` / `--check`：40 个白名单文件一致，重复生成更新 0 个文件；Skill Creator `quick_validate.py` 通过。
 
 本次调整规则、导航与生成提示，未新增仅比对文案的测试或按目录文件数、文件名关键词判定代码职责的门禁。现有工具检查不自动证明项目代码分类、版本隔离或运行行为正确；需由执行者读取实现并核对新增、改名、未跟踪及任务内已提交文件，测试迁移还需检查收集范围。本次未运行真实模型守约测试或参考项目迁移验收；已安装 Skill 和已有项目需按更新流程合并规则后才生效。
+
+## 2026-11-04 按问题范围修复与验证
+
+Lifecycle 集中维护定点修复、按证据扩大诊断与重评估的判断方法，Policy 维护经验归属和旧验证按依赖复用。AGENTS、根/Workspace/WORK/导航入口、五份工作项模板、维护工具无模板回退提示、Skill 共用边界/更新路径/审查规则及贡献核对表联动更新，再单向生成发行副本。
+
+规则按原因确定程度、影响、复发情况与风险选择深度，保留项目既有验收、授权与预算要求；没有新增状态字段、进度表、独立诊断模板、统一失败次数或自动语义门禁。局部修复保持必要验证，复杂、复发、回退或高风险问题沿相关依赖诊断，经验按适用价值进入测试、合同、配置或说明。原验证结果与新的适用判断分别记录，不通过迎合样本、暗改验收或拼接不同候选的成功子集宣称通过。
+
+本地实际运行：
+
+- `python3 -B -m unittest discover -s template-source/workspace/scripts/tests -v`：47 项通过。
+- `python3 -B -m unittest discover -s scripts/tests -v`：10 项通过。
+- `python3 scripts/validate_repo.py`：模板源与独立发行件、Python 3.10 语法、本地链接/锚点与 Git 差异检查通过。
+- `python3 scripts/sync_templates.py --write` / `--check`：40 个白名单文件一致，重复生成更新 0 个文件；Skill Creator `quick_validate.py` 通过。
+
+本次只调整规则、导航和生成提示，未新增比对规则文案的测试，未修改示例项目或执行其历史故障维修。以上回归验证治理工具与分发行为，不证明执行者必然选择正确诊断范围、修复具备泛化能力或业务验收通过；本次未运行真实模型守约或业务故障修复测试。已有项目与已安装 Skill 需按更新流程合并后生效。

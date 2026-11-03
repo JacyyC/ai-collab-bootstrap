@@ -16,6 +16,7 @@ governance_schema: 4
 | 工作范围、步骤、验证与下一步 | 工作项 README；有独立 Spec/Plan/Evidence 时按链接读取 |
 | 新建、状态或字段规则 | [Lifecycle](DOCUMENT_LIFECYCLE.md) |
 | 文档内容归属 | [Policy](DOCUMENTATION_POLICY.md) |
+| 定点修复、扩大诊断及经验与旧验证复用 | [Lifecycle](DOCUMENT_LIFECYCLE.md#按问题范围修复与验证)、[Policy](DOCUMENTATION_POLICY.md#修复经验与验证复用) |
 | 新增代码、测试、脚本与运行产物的归属 | [项目文件布局](PROJECT_LAYOUT.md)；实际路径从根 README 和模块入口查找 |
 | 架构与未来差异 | [Framework](framework/README.md) |
 | 规划、历史与长期选择 | [Roadmap](ROADMAP.md)、[HISTORY](HISTORY.md)、[ADR](decisions/README.md) |

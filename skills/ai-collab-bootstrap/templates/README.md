@@ -29,6 +29,8 @@ governance_schema: 4
 
 接手读 AGENTS、[WORK](workspace/docs/WORK.md)和当前工作项。小任务用一页 README，复杂任务才拆范围、计划、过程与证据；没有变更的事实不重复同步。
 
+修复按[影响与风险](workspace/docs/DOCUMENT_LIFECYCLE.md#按问题范围修复与验证)选择定点处理或扩大诊断，已有验证按相关依赖复用，经验回流适用的测试、合同或说明；进度仍沿用工作项 YAML 与派生视图。
+
 ```bash
 python3 workspace/scripts/maintain.py --new V1-01 --title "第一项工作"
 python3 workspace/scripts/maintain.py --checkpoint V1-01

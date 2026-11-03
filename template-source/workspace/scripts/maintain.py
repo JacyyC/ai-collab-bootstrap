@@ -137,6 +137,7 @@ def new_item(root: Path, item_id: str, title: str) -> tuple[Path, list[str]]:
         "新授权与返修安排更新现有范围/计划，实际结果进入验证；内容归属见 workspace/docs/DOCUMENTATION_POLICY.md。",
         "仅需独立保存、引用或复核的附件按 workspace/docs/DOCUMENT_LIFECYCLE.md 分类、命名和登记。", "",
         "运行代码、测试与脚本按 workspace/docs/PROJECT_LAYOUT.md 选择模块内分类、命名与实际兼容版本；检查点核对新增、改名与未跟踪文件及临时代码去向。", "",
+        "修复深度按 workspace/docs/DOCUMENT_LIFECYCLE.md 随影响与风险调整；假设回流计划，实际结果与适用旧证据进入验证，经验依 Policy 落实，不另建进度表。", "",
     ])
     template = root / "workspace/templates/work-item/README.md"
     if template.is_file() and frontmatter(template).get("schema_version", "").strip("'\"") == "4":

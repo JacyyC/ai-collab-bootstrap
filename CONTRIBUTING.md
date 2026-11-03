@@ -11,6 +11,7 @@
 | 层次 | 核对位置 |
 |---|---|
 | 内容归属与文件合同 | `template-source/workspace/docs/DOCUMENTATION_POLICY.md`、`DOCUMENT_LIFECYCLE.md` |
+| 修复深度、重评估、经验与验证复用 | Lifecycle 的按范围处理规则、Policy 的经验与证据归属；核对 AGENTS、五份模板与无模板回退提示 |
 | 项目代码、内部分类、命名与版本 | `template-source/workspace/docs/PROJECT_LAYOUT.md`；根/项目 README 的实际职责入口与导航登记 |
 | 日常接手与执行 | `template-source/AGENTS.md`、`workspace/README.md`、`workspace/docs/WORK.md` |
 | 实例化后的记录提示 | `template-source/workspace/templates/work-item/` 的 README、Spec、Plan、Log、Evidence；`maintain.py` 的无模板回退入口 |
@@ -20,6 +21,8 @@
 项目布局规则重点核对日常 AGENTS、根/项目 README、Workspace/WORK/导航入口、五份工作项模板与 `maintain.py` 无模板回退提示，再核对 Skill 的共用边界、新建/更新路径、分类和审查规则。Spec 明确整理与兼容范围，Plan 安排分类、迁移和验证，Log 保存重要取舍，Evidence 保存实际审查与测试结果，单页 README 承担相同职责。仅修改实际受影响提示，不在五份模板复制完整规则；新增规则文件须进入发行白名单，并由原有入口链接。
 
 用户提供的目录或文件用于核对问题，不能直接固化成所有项目必须遵循的目录树、语言命名或版本号。规则应给出按职责、所属边界、技术栈和生命周期选择的依据，示例与强制合同明确区分；覆盖核对也要确认没有因某个案例扩大适用范围或破坏项目已有约定。
+
+修复验证规则以影响、风险和实际证据指导处理深度，细则集中在 Lifecycle/Policy，日常协议与模板仅保留对应职责的提醒。核对局部修复能保持轻量、复杂/复发/回退/高风险能扩大诊断、旧证据按依赖判断、经验有适用的落实位置；不得从单个案例引入统一失败次数、全量测试要求、新进度表或自动语义门禁。保留各项目已经明确的验收、授权与预算要求。
 
 表内省略的 `workspace/` 工具路径均位于 `template-source/`。根仓库不运行用户项目工作项流程；现有用户项目升级需按其实际入口和工具合并，不因本仓库模板更新而自动生效。
 

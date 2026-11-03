@@ -15,6 +15,8 @@ governance_schema: 4
 
 执行中新授权和返修安排回流现有范围/计划，实际结果进入验证记录；README 保留当前入口，历史依据按阶段/批次定位。拆分前按[内容归属](docs/DOCUMENTATION_POLICY.md#现行约定与历史依据)判断独立保存价值。
 
+修复按[问题范围与风险](docs/DOCUMENT_LIFECYCLE.md#按问题范围修复与验证)选择定点处理或扩大诊断；[经验与验证复用](docs/DOCUMENTATION_POLICY.md#修复经验与验证复用)回流现有正文和实现，不另建进度表。
+
 新增运行代码、测试与脚本按[项目文件布局](docs/PROJECT_LAYOUT.md)先选所属模块，工作项引用实现；检查点核对新增、改名和未跟踪文件，不能只整理工作文档。
 
 工作项、检查点和只读检查统一使用 `workspace/scripts/maintain.py`；[模板](templates/work-item/README.md)保留必需信息而不要求空的计划、日志和证据文件。人工开发日志不由 AI 维护。
