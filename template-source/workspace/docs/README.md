@@ -16,6 +16,7 @@ governance_schema: 4
 | 工作范围、步骤、验证与下一步 | 工作项 README；有独立 Spec/Plan/Evidence 时按链接读取 |
 | 新建、状态或字段规则 | [Lifecycle](DOCUMENT_LIFECYCLE.md) |
 | 文档内容归属 | [Policy](DOCUMENTATION_POLICY.md) |
+| 新增代码、测试、脚本与运行产物的归属 | [项目文件布局](PROJECT_LAYOUT.md)；实际路径从根 README 和模块入口查找 |
 | 架构与未来差异 | [Framework](framework/README.md) |
 | 规划、历史与长期选择 | [Roadmap](ROADMAP.md)、[HISTORY](HISTORY.md)、[ADR](decisions/README.md) |
 
@@ -27,12 +28,13 @@ governance_schema: 4
 |---|---|---|---|
 | `README.md` | 项目定位、已验证能力、日常入口 | 使用者；首次进入或定位变化 | 代码、配置与验证 |
 | `AGENTS.md` | 执行协议与权限边界 | 贡献者/AI；接手 | 用户约定、Policy/Lifecycle |
-| `project/README.md` | 业务区边界 | 开发者；目录调整 | 实际布局 |
+| `project/README.md` | 业务区与模块职责入口 | 开发者；新增运行文件或目录调整 | 实际布局、包配置与运行入口 |
 | `project/docs/index.md` | 稳定产品文档导航 | 使用者；找使用/开发/运维说明 | 稳定产品页 |
 | `workspace/README.md` | 工作区入口 | 维护者；认识工作区 | 治理与导航 |
 | `workspace/docs/README.md` | 导航与稳定文件登记 | 维护者；找正文或新增/移动稳定页 | 登记与文件树 |
 | `workspace/docs/DOCUMENTATION_POLICY.md` | 内容归属与同步 | 贡献者；内容边界或政策变化 | 用户治理约定 |
 | `workspace/docs/DOCUMENT_LIFECYCLE.md` | 记录格式与检查合同 | 贡献者；字段/状态/模板变化 | Schema与工具 |
+| `workspace/docs/PROJECT_LAYOUT.md` | 项目文件归位与新增文件审查方法 | 贡献者；新增/生成/移动运行文件及检查点 | 根 README、模块职责与实际实现 |
 | `workspace/docs/WORK.md` | 当前工作投影 | 接手者；日常 | 工作项YAML |
 | `workspace/docs/HISTORY.md` | 终态索引 | 审计者；查历史 | 工作项YAML |
 | `workspace/docs/ROADMAP.md` | 未来成果路线骨架 | 规划者；有实际目标时 | 已接受范围 |

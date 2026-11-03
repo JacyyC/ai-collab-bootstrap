@@ -19,6 +19,7 @@ STATIC = (
     "project/docs/index.md", "project/backend/.gitkeep", "project/frontend/.gitkeep",
     "workspace/README.md", "workspace/docs/README.md",
     "workspace/docs/DOCUMENTATION_POLICY.md", "workspace/docs/DOCUMENT_LIFECYCLE.md",
+    "workspace/docs/PROJECT_LAYOUT.md",
     "workspace/docs/WORK.md", "workspace/docs/HISTORY.md", "workspace/docs/ROADMAP.md",
     "workspace/docs/work-items/README.md", "workspace/docs/work-items/.gitkeep",
     "workspace/docs/work-items/records/.gitkeep", "workspace/docs/framework/README.md",

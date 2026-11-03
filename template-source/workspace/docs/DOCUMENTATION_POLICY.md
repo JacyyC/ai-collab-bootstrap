@@ -14,6 +14,7 @@ governance_schema: 4
 | 信息 | 权威正文 |
 |---|---|
 | 项目定位、已验证能力、使用和运维 | 根 README 与 `project/docs/` |
+| 项目目录边界、模块职责及运行入口 | 根 README 与其链接的实际模块入口；归位方法见 [项目文件布局](PROJECT_LAYOUT.md) |
 | 当前状态、Stage、下一步、交接 | 工作项 README；状态字段只写 YAML |
 | 当前有效范围、AC、授权约束及来源 | 小项 README 范围/验收章节；复杂项 Spec |
 | 当前实施顺序、返修问题、技术准入条件及证据入口 | 小项 README 计划章节；复杂项 Plan |

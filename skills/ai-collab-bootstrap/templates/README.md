@@ -23,6 +23,8 @@ governance_schema: 4
 - `workspace/`：工作项、交接、技术事实、规划与治理工具；不复制业务代码。
 - [AGENTS](AGENTS.md)：人类与 AI 工作协议；`开发日志.md` 为人工专用。
 
+实例化时按实际目录填写或链接模块职责。后续新增运行代码、测试和脚本也遵循这些职责，创建前选定归属，检查点核对新增与未跟踪文件；方法见 [项目文件布局](workspace/docs/PROJECT_LAYOUT.md)。
+
 ## 日常使用
 
 接手读 AGENTS、[WORK](workspace/docs/WORK.md)和当前工作项。小任务用一页 README，复杂任务才拆范围、计划、过程与证据；没有变更的事实不重复同步。
