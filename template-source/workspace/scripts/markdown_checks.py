@@ -3,13 +3,14 @@
 
 from __future__ import annotations
 
+import os
 import re
 from collections import Counter
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 
-SKIP_PARTS = frozenset({".git", ".trae", ".venv", "node_modules", "dist", "build", ".idea", "__pycache__"})
+SKIP_PARTS = frozenset({".git", ".trae", ".venv", ".local", ".idea", ".pytest_cache", ".ruff_cache", "node_modules", "dist", "build", "coverage", "playwright-report", "test-results", "__pycache__"})
 LINK_RE = re.compile(r"!?\[[^\]]*\]\((<[^>\n]+>|[^)\s]+)(?:\s+[^)]*)?\)")
 REFERENCE_RE = re.compile(r"^\s{0,3}\[[^\]]+\]:\s*(<[^>\n]+>|\S+)", re.MULTILINE)
 HEADING_RE = re.compile(r"^#{1,6}\s+(.+?)\s*#*\s*$", re.MULTILINE)
@@ -17,7 +18,12 @@ ABSOLUTE_LOCAL_PATH_RE = re.compile(r"(?<![A-Za-z0-9])/(?:Users|Volumes|home)/|(
 
 
 def markdown_files(root: Path) -> list[Path]:
-    return sorted(path for path in root.rglob("*.md") if path.is_file() and not SKIP_PARTS.intersection(path.relative_to(root).parts))
+    paths: list[Path] = []
+    for directory, children, files in os.walk(root, followlinks=False):
+        base = Path(directory)
+        children[:] = [name for name in children if name not in SKIP_PARTS and not (base / name).is_symlink()]
+        paths.extend(base / name for name in files if name.lower().endswith(".md") and name != "开发日志.md" and not (base / name).is_symlink())
+    return sorted(paths)
 
 
 def without_fences(text: str) -> str:
@@ -97,6 +103,9 @@ def check_links(paths: list[Path], errors: list[str], root: Path) -> tuple[dict[
             checked += 1
             if not target.exists():
                 errors.append(f"坏 Markdown 目标: {source.relative_to(root)} -> {raw}")
+                continue
+            relative_parts = target.relative_to(root).parts
+            if SKIP_PARTS.intersection(relative_parts) or target.name == "开发日志.md":
                 continue
             if target.is_file() and target.suffix.lower() == ".md":
                 graph[source.resolve()].add(target.resolve())

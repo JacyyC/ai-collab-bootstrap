@@ -46,10 +46,14 @@ def main() -> int:
             content = origin.read_bytes()
             if hashlib.sha256(content).hexdigest() != checksum:
                 raise ValueError(f"模板完整性校验失败：{name}")
+            if relative.parts[0] == "optional":
+                continue
             if destination.exists() or destination.is_symlink() or any(
                 p.is_symlink() or (p.exists() and not p.is_dir()) for p in destination.parents
             ):
                 conflicts.append(name)
+            # Optional architecture/roadmap/ADR assets remain in the complete
+            # Skill for adoption when real project content needs them.
             prepared[name] = content
         if not prepared or "AGENTS.md" not in prepared or "workspace/scripts/maintain.py" not in prepared:
             raise ValueError("模板清单不完整")
@@ -58,6 +62,9 @@ def main() -> int:
         if not args.write:
             print(f"预览：复制 {len(prepared)} 个骨架文件到 {target}；未写入。")
             return 0
+        fingerprint = hashlib.sha256(json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+        protocol = prepared.get("AGENTS.md", b"").decode("utf-8")
+        prepared["AGENTS.md"] = protocol.replace("<TEMPLATE-FINGERPRINT>", fingerprint).encode("utf-8")
         for name, content in prepared.items():
             destination = target / name
             destination.parent.mkdir(parents=True, exist_ok=True)

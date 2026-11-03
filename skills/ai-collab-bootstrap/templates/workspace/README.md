@@ -7,16 +7,12 @@ governance_schema: 4
 
 # Workspace
 
-这里保存长期维护所需的当前工作、范围、计划、验证、交接与技术决策。实际代码和稳定产品使用说明进入 [project](../project/README.md)。
+项目日常接手从根 [AGENTS](../AGENTS.md)、[WORK](docs/WORK.md)和所选工作项开始。稳定产品/架构知识、源码与测试沿用根 [README](../README.md)链接的实际位置。
 
-日常接手只读根 [AGENTS](../AGENTS.md)、[WORK](docs/WORK.md)和所选工作项 README。需要浏览结构、建立稳定说明或修改治理时再读[导航](docs/README.md)、[政策](docs/DOCUMENTATION_POLICY.md)与[生命周期](docs/DOCUMENT_LIFECYCLE.md)。
+- [WORK](docs/WORK.md)：规划与活动；[HISTORY](docs/HISTORY.md)：终态，按需查询。两者只从工作项状态源派生。
+- [Policy](docs/DOCUMENTATION_POLICY.md)：内容放哪里；[Lifecycle](docs/DOCUMENT_LIFECYCLE.md)：字段、拆分、验证与流转；[Layout](docs/PROJECT_LAYOUT.md)：运行文件归位、命名与迁移。
+- [单页模板](templates/work-item/README.md)默认使用；复杂时按需采用本地 Spec/Plan/Log/Evidence 库存，不默认创建五份正文。
 
-状态与下一步以工作项 YAML 为准；受控视图由工具生成。Schema 4 单页记录是默认，复杂内容按需拆分；Schema 2/3 历史不批量改写。
+统一工具为 `python3 workspace/scripts/maintain.py --check/--checkpoint ID/--new ID --title 标题`。具体参数分别调用，不把此行当作一个 shell 命令。项目不运行模板仓发行同步，也不依赖全局 Skill 才能日常维护。
 
-执行中新授权和返修安排回流现有范围/计划，实际结果进入验证记录；README 保留当前入口，历史依据按阶段/批次定位。拆分前按[内容归属](docs/DOCUMENTATION_POLICY.md#现行约定与历史依据)判断独立保存价值。
-
-修复按[问题范围与风险](docs/DOCUMENT_LIFECYCLE.md#按问题范围修复与验证)选择定点处理或扩大诊断；[经验与验证复用](docs/DOCUMENTATION_POLICY.md#修复经验与验证复用)回流现有正文和实现，不另建进度表。
-
-新增运行代码、测试与脚本按[项目文件布局](docs/PROJECT_LAYOUT.md)先选所属模块，工作项引用实现；检查点核对新增、改名和未跟踪文件，不能只整理工作文档。
-
-工作项、检查点和只读检查统一使用 `workspace/scripts/maintain.py`；[模板](templates/work-item/README.md)保留必需信息而不要求空的计划、日志和证据文件。人工开发日志不由 AI 维护。
+首次接入、对齐或版本升级时再使用 Skill；新规则需真正合并到本地读取链、生成链和工具，记录实际采纳范围。

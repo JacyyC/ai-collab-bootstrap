@@ -1,12 +1,12 @@
 # AI 协作 · 长期维护工作区
 
-一个中文 Agent Skill，为需要多轮迭代、交接和事实追溯的项目建立、更新或整理协作工作区。已有代码和产品说明保留原布局，工作范围、下一步和验证依据放在 `workspace/`。
+一个中文 Agent Skill，用于项目首次建立或对齐协作工作区，以及获取新版后的升级。已有代码和产品说明保留原布局，工作范围、下一步和验证依据放在 `workspace/`。
 
 ## 它与模板的关系
 
-本仓库发布的是 **Skill + 内置模板**。Skill 告诉 Agent 何时新建、更新或整理工作区；模板提供工作协议、单页工作项和实际检查工具。安装 Skill 后，再由 Agent 按项目事实实例化工作区。这里的 README 是产品介绍，[模板 README](template-source/README.md)中的占位符则留给使用者填写。
+本仓库发布的是 **Skill + 内置模板**。Skill 告诉 Agent 何时新建、更新或整理工作区；模板提供工作协议、单页工作项和实际检查工具。Skill 接入后，项目日常由本地 AGENTS、三份按需规则、五份工作项模板和维护工具承接，无需每轮调用 Skill。这里的 README 是产品介绍，[模板 README](template-source/README.md)中的占位符则留给使用者填写。
 
-- 默认单页工作项；执行变更回流现行正文，复杂任务才拆 Spec、Plan、Log、Evidence，独立附件按类别或批次保存，兼容 Schema 2/3。
+- 保留五份本地模板库存，真实任务默认只创建单页 README；执行变更回流现行正文，复杂任务才拆 Spec、Plan、Log、Evidence，独立附件按类别或批次保存，兼容 Schema 2/3。
 - 一个维护入口检查工作项、派生视图、文档和链接，记录实际工具结果。
 - 后续新增运行代码、测试与脚本也按模块职责分类、命名并明确实际版本边界；创建前选路径，检查点审查新增与未跟踪文件，细则见[项目文件布局模板](template-source/workspace/docs/PROJECT_LAYOUT.md)。
 - 修复按影响与风险选择定点处理或扩大诊断，已有验证按相关依赖复用，经验回流测试、合同或说明；继续使用现有工作项与状态视图。
@@ -65,7 +65,8 @@ python3 workspace/scripts/maintain.py --checkpoint TASK-01
 ```text
 skills/ai-collab-bootstrap/   可独立安装：入口、规则、接入说明、脚本、模板发行件
 template-source/             模板与治理工具的唯一权威源
-scripts/                    本仓库安装、同步、校验与分发测试
+scripts/                    本仓库安装、同步、校验及开发诊断
+tests/                      工具与发行行为回归；不安装到用户项目
 docs/                       维护、验证与来源说明
 ```
 
@@ -76,8 +77,16 @@ docs/                       维护、验证与来源说明
 ```bash
 python3 scripts/sync_templates.py --write
 python3 scripts/validate_repo.py
-python3 -B -m unittest discover -s template-source/workspace/scripts/tests -v
+python3 -B -m unittest discover -s tests -t . -v
 python3 -B -m unittest discover -s scripts/tests -v
 ```
 
 只修改用户项目时，不执行模板发行和全套仓库回归。详情见 [贡献说明](CONTRIBUTING.md)、[验证边界](docs/VALIDATION.md)与[来源说明](docs/PROVENANCE.md)。源码与 Skill 采用 [MIT](LICENSE) 许可。
+
+## 获取更新与已有项目升级
+
+更新完整 Skill 包与升级已有项目是两步。安装器拒绝覆盖同名目录，不提供自动升级；按接入说明替换完整包，旧包移出客户端发现范围。再让 Skill 比较并合并目标项目的 AGENTS、README/模块入口、Policy/Lifecycle/Layout、五模板、创建回退、日常工具和现存导航；保护用户改动、定制、历史原件和已验证事实。
+
+项目 AGENTS 一处记录清单指纹、来源修订（可得时）、实际采纳范围与未合并差异；格式版本不代表具体发行。仅拉取新版不会自动让项目生效。模板源与 Skill 说明人工联动，根同步脚本只生成模板副本及清单。
+
+新骨架不创建 project/docs、framework、路线、决策或第三管理页；产品/架构知识沿用实际入口。架构、目标、路线和 ADR 的可选模板随 Skill 的 templates/optional/ 提供，不默认安装；项目内五份工作项模板继续全部保留。旧页有内容时保留并兼容，不按新骨架自动删除。

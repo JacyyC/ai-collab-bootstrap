@@ -31,6 +31,7 @@ class CheckResult:
 
 def git_context(root: Path) -> tuple[str, str] | None:
     """Inspect a repository; do not initialize Git or alter its index."""
+    root = root.resolve()
     try:
         result = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=root, text=True, capture_output=True)
         if result.returncode or Path(result.stdout.strip()).resolve() != root:
@@ -46,20 +47,24 @@ def git_diff_check(root: Path) -> tuple[CheckResult, list[str]]:
     if git_context(root) is None:
         return CheckResult("git diff --check", "not_run", "N/A：根目录没有 Git 仓库，未验证差异空白"), []
     try:
-        result = subprocess.run(["git", "diff", "--check"], cwd=root, text=True, capture_output=True)
+        checks = [subprocess.run(command, cwd=root, text=True, capture_output=True) for command in (
+            ["git", "diff", "--check"], ["git", "diff", "--cached", "--check"],
+        )]
     except OSError:
         return CheckResult("git diff --check", "failed", "无法执行 Git"), ["无法执行 git diff --check"]
-    if result.returncode:
+    failures = [result.returncode for result in checks if result.returncode]
+    if failures:
         # Raw output may contain private file content or local paths. Record only
         # the observed exit code; the user can inspect Git locally for details.
-        summary = f"退出码 {result.returncode}；存在差异空白错误"
+        summary = "工作树或暂存区存在差异空白错误；退出码 " + ", ".join(map(str, failures))
         return CheckResult("git diff --check", "failed", summary), [summary]
-    return CheckResult("git diff --check", "passed", "退出码 0"), []
+    return CheckResult("git diff --check", "passed", "工作树及暂存区退出码均为 0；未覆盖未跟踪或任务已提交文件的职责审查"), []
 
 
 def run_checks(root: Path, write_views: bool = False) -> tuple[list[CheckResult], list[str]]:
     items, view_errors = update_views(root, write_views)
-    results = [CheckResult("工作项与派生视图", "failed" if view_errors else "passed", f"{len(view_errors)} 个错误" if view_errors else f"{len(items)} 个工作项，3 个派生视图")]
+    view_count = 2 + int((root / "workspace/docs/work-items/README.md").is_file())
+    results = [CheckResult("工作项与派生视图", "failed" if view_errors else "passed", f"{len(view_errors)} 个错误" if view_errors else f"{len(items)} 个工作项，{view_count} 个派生视图")]
     doc_errors, counts = collect_errors(root, full=True, include_derived=False)
     results.append(CheckResult("文档结构与全部本地链接", "failed" if doc_errors else "passed", f"{len(doc_errors)} 个错误" if doc_errors else f"{counts['stable']} 个稳定文档，{counts['links']} 个链接和锚点"))
     git_result, git_errors = git_diff_check(root)
@@ -117,7 +122,7 @@ def new_item(root: Path, item_id: str, title: str) -> tuple[Path, list[str]]:
         raise ValueError("现有工作项校验失败，先修正现有元数据")
     if any(item.value("id") == item_id for item in items):
         raise ValueError(f"工作项 ID 已登记: {item_id}")
-    for relative in ("workspace/docs/WORK.md", "workspace/docs/HISTORY.md", "workspace/docs/work-items/README.md"):
+    for relative in ("workspace/docs/WORK.md", "workspace/docs/HISTORY.md"):
         if not (root / relative).is_file():
             raise ValueError("缺少派生视图入口，先初始化 Workspace")
     now = datetime.now().astimezone()

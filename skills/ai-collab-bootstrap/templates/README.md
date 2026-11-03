@@ -7,41 +7,27 @@ governance_schema: 4
 
 # <PROJECT-NAME>
 
-> 本仓库是长期维护模板 v4。实例化时填写项目定位与已验证能力，删除本提示；业务事实尚未产生时保持草稿，不把模板骨架当成交付能力。
+<说明项目服务谁、解决什么问题、当前已验证能力及限制。>
 
-## 项目定位
+## 使用与目录
 
-<服务谁、解决什么问题、当前边界。>
+<链接实际安装、运行、测试、源码模块和稳定产品文档。保留既有布局，不要求创建 project/、backend/、frontend/ 或固定架构目录。>
 
-## 当前可用能力
+`workspace/` 保存协作记录、项目内模板和维护工具；业务源码、测试与稳定知识沿用项目原位置。架构事实、已接受目标和候选设想注明身份，不用空骨架表示能力。
 
-<仅写代码、配置、测试或实际运行证明的能力，以及限制。>
+## 协作入口
 
-## 目录
-
-- `project/`：实际业务代码、测试、配置与[产品文档](project/docs/index.md)。
-- `workspace/`：工作项、交接、技术事实、规划与治理工具；不复制业务代码。
-- [AGENTS](AGENTS.md)：人类与 AI 工作协议；`开发日志.md` 为人工专用。
-
-实例化时按实际目录填写或链接模块职责。后续新增运行代码、测试和脚本也遵循这些职责，创建前选定归属，检查点核对新增与未跟踪文件；方法见 [项目文件布局](workspace/docs/PROJECT_LAYOUT.md)。
-
-## 日常使用
-
-接手读 AGENTS、[WORK](workspace/docs/WORK.md)和当前工作项。小任务用一页 README，复杂任务才拆范围、计划、过程与证据；没有变更的事实不重复同步。
-
-修复按[影响与风险](workspace/docs/DOCUMENT_LIFECYCLE.md#按问题范围修复与验证)选择定点处理或扩大诊断，已有验证按相关依赖复用，经验回流适用的测试、合同或说明；进度仍沿用工作项 YAML 与派生视图。
+首次接入、对齐或获取新版后升级使用 ai-collab-bootstrap；接入后的日常工作由本地 [AGENTS](AGENTS.md)、[WORK](workspace/docs/WORK.md)和所选工作项承接，无需每轮加载 Skill。
 
 ```bash
-python3 workspace/scripts/maintain.py --new V1-01 --title "第一项工作"
-python3 workspace/scripts/maintain.py --checkpoint V1-01
+python3 workspace/scripts/maintain.py --new TASK-01 --title "明确的工作目标"
+python3 workspace/scripts/maintain.py --check
+python3 workspace/scripts/maintain.py --checkpoint TASK-01
 ```
 
-新建命令只生成待填写范围和 AC 的规划项，不代替范围确认。检查点刷新视图、运行完整结构检查并记录工具实际结果；业务验收仍需真实测试。只读审查使用 `python3 workspace/scripts/maintain.py --check`。
+新建仅产生 planned 单页，填写实际范围和 AC 后实施。复杂时使用项目内五份模板，按需拆分。工具检查不证明业务通过。
 
-## 按需入口
+- [工作区说明](workspace/README.md)、[按需文档入口](workspace/docs/README.md)、[历史](workspace/docs/HISTORY.md)。
+- [内容归属](workspace/docs/DOCUMENTATION_POLICY.md)、[记录合同](workspace/docs/DOCUMENT_LIFECYCLE.md)、[运行文件布局](workspace/docs/PROJECT_LAYOUT.md)。
 
-- [工作项管理](workspace/docs/work-items/README.md)、[文档导航](workspace/docs/README.md)；
-- [已验证架构](workspace/docs/framework/current/v1.md)；[目标骨架](workspace/docs/framework/target/v1.md)、[路线骨架](workspace/docs/ROADMAP.md)、[长期决策](workspace/docs/decisions/README.md)按实际需要采用；
-- [历史](workspace/docs/HISTORY.md)、[文档政策](workspace/docs/DOCUMENTATION_POLICY.md)、[记录格式](workspace/docs/DOCUMENT_LIFECYCLE.md)。
-
-初始化按项目真实目录保留、重命名或删除空的 backend/frontend；现有项目可保留原代码布局，由 README 明确项目区边界。默认 Current 用一页，内容增长后按职责拆分；目标、路线和 ADR 没有事实时不填虚构内容。
+升级已安装 Skill 不会升级本项目；需要合并本地协议、模板、工具和实际入口，并保留定制、用户改动与历史原件。新增或变更模块职责时维护实际模块入口，不逐文件维护第二份台账。

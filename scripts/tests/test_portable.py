@@ -77,6 +77,22 @@ class PortableBehaviorTests(unittest.TestCase):
         self.run_script(BOOTSTRAP, "--template-dir", str(source), "--target", str(self.target), "--write", expected=1)
         self.assertFalse(self.target.exists())
 
+    def test_optional_assets_do_not_conflict_or_install_but_are_verified(self) -> None:
+        self.target.mkdir()
+        (self.target / "optional").write_text("项目原有文件\n")
+        self.run_script(BOOTSTRAP, "--target", str(self.target), "--write")
+        self.assertEqual((self.target / "optional").read_text(), "项目原有文件\n")
+        self.assertFalse((self.target / "project").exists())
+        self.assertFalse((self.target / "workspace/docs/framework").exists())
+        self.assertFalse((self.target / "workspace/docs/work-items/README.md").exists())
+        self.assertEqual(len(list((self.target / "workspace/templates/work-item").glob("*.md"))), 5)
+        source = self.directory / "tampered-templates"
+        shutil.copytree(ROOT / "skills/ai-collab-bootstrap/templates", source)
+        (source / "optional/adr.md").write_text("drift\n")
+        other = self.directory / "other-project"
+        self.run_script(BOOTSTRAP, "--template-dir", str(source), "--target", str(other), "--write", expected=1)
+        self.assertFalse(other.exists())
+
     def test_symlinked_target_is_rejected(self) -> None:
         actual = self.directory / "actual"
         actual.mkdir()
@@ -90,6 +106,7 @@ class PortableBehaviorTests(unittest.TestCase):
         installed = destination / "ai-collab-bootstrap"
         self.run_script(installed / "scripts/bootstrap.py", "--target", str(self.target), "--write")
         maintain = self.target / "workspace/scripts/maintain.py"
+        shutil.rmtree(installed)
         before = snapshot(self.target)
         output = self.run_script(maintain, "--root", str(self.target), "--check")
         self.assertIn("not_run", output)

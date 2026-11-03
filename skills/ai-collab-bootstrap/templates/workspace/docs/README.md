@@ -5,54 +5,21 @@ template_version: 4
 governance_schema: 4
 ---
 
-# Workspace 导航与登记
+# 按需文档入口
 
-日常接手从根 [AGENTS](../../AGENTS.md)、[WORK](WORK.md)和所选工作项 README 开始；本页在找说明或改变文档结构时使用，不列入每次任务的固定阅读。
+日常只需 [AGENTS](../../AGENTS.md)、[WORK](WORK.md)和所选工作项。新增正文在其直接入口提供链接及用途，不强制维护全量文件登记表。
 
-## 按需阅读
-
-| 问题 | 入口 |
+| 问题 | 权威入口 |
 |---|---|
-| 工作范围、步骤、验证与下一步 | 工作项 README；有独立 Spec/Plan/Evidence 时按链接读取 |
-| 新建、状态或字段规则 | [Lifecycle](DOCUMENT_LIFECYCLE.md) |
-| 文档内容归属 | [Policy](DOCUMENTATION_POLICY.md) |
-| 定点修复、扩大诊断及经验与旧验证复用 | [Lifecycle](DOCUMENT_LIFECYCLE.md#按问题范围修复与验证)、[Policy](DOCUMENTATION_POLICY.md#修复经验与验证复用) |
-| 新增代码、测试、脚本与运行产物的归属 | [项目文件布局](PROJECT_LAYOUT.md)；实际路径从根 README 和模块入口查找 |
-| 架构与未来差异 | [Framework](framework/README.md) |
-| 规划、历史与长期选择 | [Roadmap](ROADMAP.md)、[HISTORY](HISTORY.md)、[ADR](decisions/README.md) |
+| 项目定位、使用、模块职责与稳定知识 | 根 README 及实际模块/文档入口 |
+| 当前范围、AC、下一步、阻塞与实际验证 | 工作项 README；拆分正文按其链接读取 |
+| 内容归属、现行约定回流与证据复用 | [Policy](DOCUMENTATION_POLICY.md) |
+| 字段、状态、文件组织、修复深度、验收与检查点 | [Lifecycle](DOCUMENT_LIFECYCLE.md) |
+| 源码、测试、工具、配置、资源的归位与迁移 | [Layout](PROJECT_LAYOUT.md) |
+| 规划与活动、终态历史 | [WORK](WORK.md)、[HISTORY](HISTORY.md) |
 
-## 稳定文件登记表
+五份本地模板库存：[README](../templates/work-item/README.md)、[Spec](../templates/work-item/spec.md)、[Plan](../templates/work-item/plan.md)、[Log](../templates/work-item/log.md)、[Evidence](../templates/work-item/evidence.md)。实际任务默认只创建 README。
 
-路径相对于仓库根目录。登记源维护职责与事实入口；新增/移动/废弃稳定正文时同步本表和直接链接。目录登记覆盖其职责内文件，动态工作项与人工日志不逐文件登记。
+默认无需 project/docs、framework、Target、Roadmap、ADR 或第三管理页。已经有内容的说明按项目实际职责保留；需要新的长期目标或决定时，从当前项目约定或 Skill 随附可选模板建立。不得为了删空骨架删除用户事实。
 
-| 路径 | 权威职责 | 读者 / 时机 | 事实源 |
-|---|---|---|---|
-| `README.md` | 项目定位、已验证能力、日常入口 | 使用者；首次进入或定位变化 | 代码、配置与验证 |
-| `AGENTS.md` | 执行协议与权限边界 | 贡献者/AI；接手 | 用户约定、Policy/Lifecycle |
-| `project/README.md` | 业务区与模块职责入口 | 开发者；新增运行文件或目录调整 | 实际布局、包配置与运行入口 |
-| `project/docs/index.md` | 稳定产品文档导航 | 使用者；找使用/开发/运维说明 | 稳定产品页 |
-| `workspace/README.md` | 工作区入口 | 维护者；认识工作区 | 治理与导航 |
-| `workspace/docs/README.md` | 导航与稳定文件登记 | 维护者；找正文或新增/移动稳定页 | 登记与文件树 |
-| `workspace/docs/DOCUMENTATION_POLICY.md` | 内容归属与同步 | 贡献者；内容边界或政策变化 | 用户治理约定 |
-| `workspace/docs/DOCUMENT_LIFECYCLE.md` | 记录格式与检查合同 | 贡献者；字段/状态/模板变化 | Schema与工具 |
-| `workspace/docs/PROJECT_LAYOUT.md` | 项目文件归位与新增文件审查方法 | 贡献者；新增/生成/移动运行文件及检查点 | 根 README、模块职责与实际实现 |
-| `workspace/docs/WORK.md` | 当前工作投影 | 接手者；日常 | 工作项YAML |
-| `workspace/docs/HISTORY.md` | 终态索引 | 审计者；查历史 | 工作项YAML |
-| `workspace/docs/ROADMAP.md` | 未来成果路线骨架 | 规划者；有实际目标时 | 已接受范围 |
-| `workspace/docs/work-items/README.md` | 工作项管理投影 | 维护者；选项/查历史 | 工作项YAML |
-| `workspace/docs/framework/README.md` | 架构导航与分层 | 维护者；架构问题 | Current/Target |
-| `workspace/docs/framework/current/v1.md` | 单页已验证架构骨架 | 开发者；技术事实变化 | 实现与验证 |
-| `workspace/docs/framework/target/v1.md` | 可选目标骨架 | 规划者；已接受未来差异 | 范围与采用门槛 |
-| `workspace/docs/decisions/` | 长期决策与模板 | 维护者；有长期选择时 | 已接受决定 |
-| `workspace/templates/work-item/` | 单页及可选分文件模板 | 贡献者；创建或拆分记录 | Lifecycle |
-| `workspace/scripts/` | 统一维护、校验、发行及效果比较工具 | 维护者；检查点/模板变更 | 实际执行结果 |
-
-## 动态记录与工具
-
-`work-items/records/<id>/` 永久保存每项工作，单页是默认；分文件与项内 archive 按内容需要建立。终态正文默认冻结，纠错留日期与依据；人工开发日志不纳入 AI 维护。
-
-- [单页模板](../templates/work-item/README.md)，可选 [Spec](../templates/work-item/spec.md)、[Plan](../templates/work-item/plan.md)、[Log](../templates/work-item/log.md)、[Evidence](../templates/work-item/evidence.md)。
-- [统一入口](../scripts/maintain.py)：`--new ID --title 标题`、`--checkpoint ID`、`--check`。
-- [视图工具](../scripts/workspace_views.py)、[健康检查](../scripts/document_health_check.py)、[链接检查](../scripts/check_markdown_links.py)保留独立入口，日常不重复调用。
-- [发行同步](../scripts/sync_skill_templates.py)：仅模板维护时 `--write` / `--check`；实例化项目不增加此步骤。
-- [效果比较](../scripts/benchmark_maintenance.py)与 `workspace/scripts/tests/`：仅治理/工具变化时运行，使用隔离场景，不成为每项业务工作的必跑流程。
+`workspace/scripts/` 只承担项目本地协作检查。发行器、开发测试和结构 benchmark 属模板维护仓，不成为每项业务工作流程。旧项目自有导航、登记和工具可继续维护，升级时保护定制。

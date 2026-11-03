@@ -251,8 +251,6 @@ def validate_record_layout(path: Path, text: str, item: Item) -> None:
             artifact_files.append(child)
             if len(relative.parts) < 3:
                 problems.append(f"附件缺少分类或批次目录: {relative.as_posix()}")
-            elif any(not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) for name in relative.parts[1:-1]):
-                problems.append(f"附件目录命名须用小写英文、数字和连字符: {relative.as_posix()}")
             continue
         if child.suffix.lower() != ".md":
             problems.append(f"非约定产物路径: {relative.as_posix()}；附件放 artifacts/<类别或批次>/")
@@ -264,9 +262,6 @@ def validate_record_layout(path: Path, text: str, item: Item) -> None:
         if relative.parts[0] != "topics" or len(relative.parts) < 2:
             problems.append(f"非约定记录路径: {relative.as_posix()}；归入已有正文，独立专题放 topics/")
             continue
-        names = (*relative.parts[1:-1], child.stem)
-        if child.suffix != ".md" or any(not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) for name in names):
-            problems.append(f"专题命名须用小写英文、数字和连字符: {relative.as_posix()}")
         if child.resolve() not in targets:
             problems.append(f"缺少 README 入口: {relative.as_posix()}")
     artifacts = (path.parent / "artifacts").resolve()
@@ -274,6 +269,13 @@ def validate_record_layout(path: Path, text: str, item: Item) -> None:
         problems.append("缺少 README 入口: artifacts/；链接目录或关键原始产物并说明用途")
     if problems:
         raise ValueError("；".join(problems))
+
+
+def declared_acceptance(path: Path, text: str, item: Item) -> set[str]:
+    spec_value = item.value("spec")
+    spec = (path.parent / spec_value).resolve() if spec_value else path.parent / "spec.md"
+    source = spec.read_text(encoding="utf-8") if spec.is_file() else section(text, ("验收", "验收条件", "范围与验收", "目标与范围及验收"))
+    return set(re.findall(r"\bAC-\d+\b", without_fences(source)))
 
 
 def validate_schema4(path: Path, item: Item) -> None:
@@ -307,6 +309,8 @@ def validate_schema4(path: Path, item: Item) -> None:
         plan_values = frontmatter(plan) if plan.read_text(encoding="utf-8").startswith("---") else {}
         if plan_values.get("impact_schema", "").strip("'\"") not in {"", "2"}:
             raise ValueError("Schema 4 Plan 如声明 impact_schema，必须为 2")
+    if item.value("status") in {"ready", "active"} and not declared_acceptance(path, text, item):
+        raise ValueError("ready/active 必须在 Spec 或 README 验收章节声明至少一项 AC；内容与授权仍须执行者核对")
     if item.value("status") not in TERMINAL:
         return
     try:
@@ -343,10 +347,7 @@ def validate_schema4(path: Path, item: Item) -> None:
         latest = {ac: (status, substantive) for ac, status, substantive in records}
         if any(status != "passed" or not substantive for status, substantive in latest.values()):
             raise ValueError("completed 每项 AC 的最后一条验收记录必须 passed，且有方法、结果和限制")
-        spec_value = item.value("spec")
-        spec = (path.parent / spec_value).resolve() if spec_value else path.parent / "spec.md"
-        declared_text = spec.read_text(encoding="utf-8") if spec.is_file() else section(text, ("验收", "验收条件", "范围与验收", "目标与范围及验收"))
-        declared = set(re.findall(r"\bAC-\d+\b", without_fences(declared_text)))
+        declared = declared_acceptance(path, text, item)
         passed = {ac for ac, (status, substantive) in latest.items() if status == "passed" and substantive}
         if not declared or declared - passed:
             raise ValueError("completed 必须逐项覆盖 Spec 或 README 已声明的 AC")
@@ -469,28 +470,26 @@ def sort_key(item: Item) -> tuple[int, str]:
 
 
 def work_block(items: list[Item]) -> str:
-    active = sorted((item for item in items if item.value("status") in ACTIVE), key=sort_key)
-    lines = ["| 优先级 | ID | 状态 | Stage | 依赖 | 下一动作 | 入口 |", "|---|---|---|---|---|---|---|"]
-    for item in active:
-        deps = ", ".join(item.values_list("depends_on")) or "-"
-        lines.append(
-            "| {} | {} | {} | {} | {} | {} | {} |".format(
-                escape(item.value("priority")), escape(item.value("id")), escape(item.value("status")),
-                escape(item.value("stage")), escape(deps), escape(item.value("next_action")),
-                link(item, "work-items/records"),
-            )
-        )
-    if not active:
-        lines.extend(["", "当前没有 `ready`、`active`、`blocked` 或 `paused` 工作项。"])
-    return "\n".join(lines)
+    lines: list[str] = []
+    for title, statuses in (("规划项", {"planned"}), ("活动项", ACTIVE)):
+        selected = sorted((item for item in items if item.value("status") in statuses), key=sort_key)
+        lines.extend([f"## {title}", "", "| 优先级 | ID | 标题 | 状态 | Stage | 依赖 | 阻塞 | 下一动作 | 入口 |", "|---|---|---|---|---|---|---|---|---|"])
+        for item in selected:
+            values = [item.value("priority"), item.value("id"), item.value("title"), item.value("status"), item.value("stage"),
+                      ", ".join(item.values_list("depends_on")), ", ".join(item.values_list("blocked_by")), item.value("next_action")]
+            lines.append("| " + " | ".join(escape(value) for value in values) + " | " + link(item, "work-items/records") + " |")
+        if not selected:
+            lines.extend(["", f"当前没有{title}。"])
+        lines.append("")
+    return "\n".join(lines).rstrip()
 
 
 def history_block(items: list[Item]) -> str:
     terminal = sorted((item for item in items if item.value("status") in TERMINAL), key=lambda item: (item.value("closed_at"), item.value("id")), reverse=True)
-    lines = ["| 终态日期 | ID | 结果 | 标签 | 入口 |", "|---|---|---|---|---|"]
+    lines = ["| 终态日期 | ID | 标题 | 结果 | 标签 | 入口 |", "|---|---|---|---|---|---|"]
     for item in terminal:
         labels = ", ".join(item.values_list("labels")) or "-"
-        lines.append(f"| {escape(item.value('closed_at'))} | {escape(item.value('id'))} | {escape(item.value('status'))} | {escape(labels)} | {link(item, 'work-items/records')} |")
+        lines.append(f"| {escape(item.value('closed_at'))} | {escape(item.value('id'))} | {escape(item.value('title'))} | {escape(item.value('status'))} | {escape(labels)} | {link(item, 'work-items/records')} |")
     if not terminal:
         lines.extend(["", "当前没有终态工作项。"])
     return "\n".join(lines)
@@ -534,7 +533,7 @@ def replace_block(path: Path, generated: str, write: bool) -> bool:
 
 
 def update_views(root: Path, write: bool = False) -> tuple[list[Item], list[str]]:
-    """Validate once and check or refresh the three deterministic view blocks."""
+    """Refresh current/history projections and any existing legacy management page."""
     items, errors = load_items(root)
     if errors:
         return items, errors
@@ -542,8 +541,10 @@ def update_views(root: Path, write: bool = False) -> tuple[list[Item], list[str]
     targets = {
         docs / "WORK.md": work_block(items),
         docs / "HISTORY.md": history_block(items),
-        docs / "work-items/README.md": management_block(items),
     }
+    legacy = docs / "work-items/README.md"
+    if legacy.is_file():
+        targets[legacy] = management_block(items)
     for path, generated in targets.items():
         label = path.relative_to(root)
         try:
@@ -574,7 +575,7 @@ def self_test() -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--write", action="store_true", help="更新三个派生视图的受控区块")
+    mode.add_argument("--write", action="store_true", help="更新 WORK/HISTORY；已有旧管理页兼容刷新")
     mode.add_argument("--check", action="store_true", help="检查 YAML 和派生视图是否一致")
     mode.add_argument("--self-test", action="store_true", help="运行确定性渲染和人工区保留测试")
     parser.add_argument("--root", type=Path, default=None, help="隔离测试时指定包含 workspace/ 的仓库根目录")
@@ -588,7 +589,8 @@ def main() -> int:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
     action = "已生成" if args.write else "检查通过"
-    print(f"{action}: {len(items)} 个工作项，3 个派生视图。")
+    count = 2 + int((root / "workspace/docs/work-items/README.md").is_file())
+    print(f"{action}: {len(items)} 个工作项，{count} 个派生视图。")
     return 0
 
 

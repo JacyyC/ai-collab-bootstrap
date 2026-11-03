@@ -4,7 +4,7 @@
 
 ```bash
 python3 scripts/validate_repo.py
-python3 -B -m unittest discover -s template-source/workspace/scripts/tests -v
+python3 -B -m unittest discover -s tests -t . -v
 python3 -B -m unittest discover -s scripts/tests -v
 ```
 
@@ -72,3 +72,19 @@ Lifecycle 集中维护定点修复、按证据扩大诊断与重评估的判断�
 - `python3 scripts/sync_templates.py --write` / `--check`：40 个白名单文件一致，重复生成更新 0 个文件；Skill Creator `quick_validate.py` 通过。
 
 本次只调整规则、导航和生成提示，未新增比对规则文案的测试，未修改示例项目或执行其历史故障维修。以上回归验证治理工具与分发行为，不证明执行者必然选择正确诊断范围、修复具备泛化能力或业务验收通过；本次未运行真实模型守约或业务故障修复测试。已有项目与已安装 Skill 需按更新流程合并后生效。
+
+## 2026-11-04 接入生命周期与本地独立工作区
+
+统一 Skill 仅用于首次建立、对齐和获取新版后的升级；项目日常由本地 AGENTS、Policy/Lifecycle/Layout、五份模板库存和维护工具承接。取消固定 project/docs/framework 空骨架及第三管理页的默认要求；WORK 展示规划/活动的标题与阻塞，HISTORY 保留终态。旧管理页存在时继续刷新受控块并保留人工区，Schema 2/3/4 和历史原件继续可读。
+
+发行器、开发 benchmark 与回归移至维护仓；24 个发行资产中 4 个 optional 知识模板不默认复制，五份工作项模板仍安装。真实任务默认仅 README。新建时 AGENTS 记录清单指纹，已有项目按本地事实合并并记录采纳范围；安装 Skill 包不会自动升级项目，不新增自动覆盖器。
+
+本地实际运行：
+
+- `python3 -B -m unittest discover -s tests -t . -v`：56 项通过，覆盖旧格式、终态冻结、双视图/旧页兼容、原生布局、暂存区、缺 AC、私有/人工文件与符号链接边界，以及清单软链和定制旧资产退役保护。
+- `python3 -B -m unittest discover -s scripts/tests -v`：11 项通过；含 optional 不默认写入/冲突、完整性仍验证，以及删除临时全局 Skill 后的本地创建与检查点。
+- 仓库校验、Skill Creator 基本结构校验通过；发行重复生成更新 0 个资产。
+
+初轮发现并修复了迁移测试夹具的路径和临时目录标准化问题；两项旧命名限制回归按新合同改为验证项目原有名称与原件保留，未删除分类/导航/历史保护覆盖。独立审查另发现 optional 冲突计算、清单软链与同步入口字节码副作用，均在交付前修复。
+
+工具仍只证明结构与显式引用合同，不判断授权真实性、正文充分性、目录职责或业务质量。历史坏链接仍在完整检查中如实失败，未实现基于旧基线的自动归因豁免。真实项目副本升级与工作模拟另存本地试验报告，不把其产品业务验收、厂商客户端加载或模型稳定性写成本仓回归结论。
