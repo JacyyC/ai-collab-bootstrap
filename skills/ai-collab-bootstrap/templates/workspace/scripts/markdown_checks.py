@@ -11,7 +11,7 @@ from urllib.parse import unquote, urlsplit
 
 
 SKIP_PARTS = frozenset({".git", ".trae", ".venv", ".local", ".idea", ".pytest_cache", ".ruff_cache", "node_modules", "dist", "build", "coverage", "playwright-report", "test-results", "__pycache__"})
-LINK_RE = re.compile(r"!?\[[^\]]*\]\((<[^>\n]+>|[^)\s]+)(?:\s+[^)]*)?\)")
+LINK_RE = re.compile(r"!?\[(?:\\.|[^\]\\])*\]\((<[^>\n]+>|[^)\s]+)(?:\s+[^)]*)?\)")
 REFERENCE_RE = re.compile(r"^\s{0,3}\[[^\]]+\]:\s*(<[^>\n]+>|\S+)", re.MULTILINE)
 HEADING_RE = re.compile(r"^#{1,6}\s+(.+?)\s*#*\s*$", re.MULTILINE)
 ABSOLUTE_LOCAL_PATH_RE = re.compile(r"(?<![A-Za-z0-9])/(?:Users|Volumes|home)/|(?<![A-Za-z0-9])[A-Za-z]:[\\/]")

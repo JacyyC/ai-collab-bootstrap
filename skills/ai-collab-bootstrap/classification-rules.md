@@ -36,6 +36,8 @@
 
 工作项内优先按 [现行约定与历史依据](templates/workspace/docs/DOCUMENTATION_POLICY.md#现行约定与历史依据) 回流内容：范围/授权约束进入 Spec，安排/返修/准入条件进入 Plan，实际结果进入 Evidence，重要变更原因进入 Log；单页项使用对应章节。仅独立专题和需留存、引用或复核的原件/报告另存，按 [文件组织](templates/workspace/docs/DOCUMENT_LIFECYCLE.md#文件组织与命名) 归入 topics 或分组 artifacts。历史原件不为合并现行说明而改写；检查代码中的固定路径、文件扫描和哈希绑定。
 
+既有工作项的归位或更正须有相应指令；单纯规则升级只更新后续生成来源，不改旧项以符合新结构。新增原件优先形成有身份索引的真实批次入口，长历史与验证可拆出，当前 README 不复制协议或展开每个物理文件。升级中的定制比较与保留原则见 [升级方法](references/workspace-upgrade.md)。
+
 WORK、HISTORY（及已有旧管理入口）由 README 数据派生。散落的进度或历史文档需要先归入正确工作项或保留为旧资料，不能直接合并进派生受控区块。
 
 ## 内容核对

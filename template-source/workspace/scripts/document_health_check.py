@@ -22,7 +22,7 @@ REQUIRED_NAMES = (
     "workspace/templates/work-item/plan.md", "workspace/templates/work-item/log.md",
     "workspace/templates/work-item/evidence.md", "workspace/scripts/workspace_views.py",
     "workspace/scripts/document_health_check.py", "workspace/scripts/markdown_checks.py",
-    "workspace/scripts/maintain.py",
+    "workspace/scripts/maintain.py", "workspace/scripts/record_tools.py",
 )
 REGISTRY_ROW_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|", re.MULTILINE)
 REGISTRY_SECTION_RE = re.compile(r"^## 稳定文件登记表\s*$\n(.*?)(?=^##\s|\Z)", re.MULTILINE | re.DOTALL)

@@ -15,4 +15,6 @@ governance_schema: 4
 
 统一工具为 `python3 workspace/scripts/maintain.py --check/--checkpoint ID/--new ID --title 标题`。具体参数分别调用，不把此行当作一个 shell 命令。项目不运行模板仓发行同步，也不依赖全局 Skill 才能日常维护。
 
+同一维护入口还提供显式字段更新、分类原件导入和真实章节链接，参数与边界见 [Lifecycle](docs/DOCUMENT_LIFECYCLE.md#机械字段、附件与链接)。正文保持任务内容，复杂部分按需拆开；原始失败与适用结果从本地入口进入。
+
 首次接入、对齐或版本升级时再使用 Skill；新规则需真正合并到本地读取链、生成链和工具，记录实际采纳范围。

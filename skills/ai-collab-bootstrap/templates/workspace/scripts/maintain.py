@@ -15,7 +15,8 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 from document_health_check import collect_errors
-from workspace_views import CHECK_END, CHECK_START, frontmatter, load_items, update_views
+from record_tools import attach_file, local_link, update_item
+from workspace_views import CHECK_END, CHECK_START, STATUSES, frontmatter, load_items, update_views
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -139,15 +140,15 @@ def new_item(root: Path, item_id: str, title: str) -> tuple[Path, list[str]]:
         "", "## 交接", "", "当前无执行记录；基线在创建时采集，检查点不会覆盖它。",
         "", "## 验证", "", "| 验收 | 状态 | 方法或命令 | 结果或证据 | 限制 |", "|---|---|---|---|---|",
         "| AC-01 | pending | 未运行 | 未验证 | 范围和验收条件待填写 |", "",
-        "新授权与返修安排更新现有范围/计划，实际结果进入验证；内容归属见 workspace/docs/DOCUMENTATION_POLICY.md。",
-        "仅需独立保存、引用或复核的附件按 workspace/docs/DOCUMENT_LIFECYCLE.md 分类、命名和登记。", "",
-        "运行代码、测试与脚本按 workspace/docs/PROJECT_LAYOUT.md 选择模块内分类、命名与实际兼容版本；检查点核对新增、改名与未跟踪文件及临时代码去向。", "",
-        "修复深度按 workspace/docs/DOCUMENT_LIFECYCLE.md 随影响与风险调整；假设回流计划，实际结果与适用旧证据进入验证，经验依 Policy 落实，不另建进度表。", "",
+        "[记录与拆分规则](../../../DOCUMENT_LIFECYCLE.md)。", "",
     ])
     template = root / "workspace/templates/work-item/README.md"
     if template.is_file() and frontmatter(template).get("schema_version", "").strip("'\"") == "4":
         template_text = template.read_text(encoding="utf-8")
         body = template_text.split("---", 2)[2].replace("<WORK-ID>", item_id).replace("<TITLE>", title.strip())
+        # Template links resolve from workspace/templates/work-item; task links
+        # resolve from docs/work-items/records/<id> instead.
+        body = body.replace("(../../docs/", "(../../../")
         next_action = frontmatter(template).get("next_action", "明确目标与验收条件")
         header = "\n".join([
             "---", "schema_version: 4", "document_status: active", f"last_updated: {now.date().isoformat()}",
@@ -168,17 +169,69 @@ def main() -> int:
     mode.add_argument("--check", action="store_true", help="只读检查（默认）")
     mode.add_argument("--checkpoint", metavar="ID", help="刷新视图、检查并记录此项工具结果")
     mode.add_argument("--new", metavar="ID", help="创建只有 README 的 Schema 4 工作项")
+    mode.add_argument("--update", metavar="ID", help="显式更新活动项机械字段并刷新视图")
+    mode.add_argument("--attach", metavar="ID", help="复制原件到分类附件、生成身份索引及入口")
+    mode.add_argument("--link", metavar="PATH", type=Path, help="只读生成项目相对链接，可核对真实章节")
     parser.add_argument("--title", help="新工作项标题，仅与 --new 使用")
+    parser.add_argument("--status", choices=sorted(STATUSES))
+    parser.add_argument("--next-action")
+    stage = parser.add_mutually_exclusive_group()
+    stage.add_argument("--stage")
+    stage.add_argument("--clear-stage", action="store_true")
+    parser.add_argument("--priority", choices=("P0", "P1", "P2", "P3"))
+    dependencies = parser.add_mutually_exclusive_group()
+    dependencies.add_argument("--depends-on", action="append", metavar="ID")
+    dependencies.add_argument("--clear-dependencies", action="store_true")
+    blockers = parser.add_mutually_exclusive_group()
+    blockers.add_argument("--blocked-by", action="append", metavar="ID")
+    blockers.add_argument("--clear-blockers", action="store_true")
+    parser.add_argument("--source", type=Path, help="--attach 的原始报告文件")
+    parser.add_argument("--category", help="附件类别或实际批次，如 checks 或 r1/c1")
+    parser.add_argument("--label", help="附件用途或链接说明")
+    parser.add_argument("--from", dest="link_from", type=Path, help="链接所在的实际文件，默认 README.md")
+    parser.add_argument("--heading", help="真实章节标题或锚点，仅用于 --link")
     parser.add_argument("--root", type=Path, default=ROOT, help="指定仓库根目录")
     args = parser.parse_args()
     if args.new and not args.title:
         parser.error("--new 必须同时提供 --title")
     if args.title and not args.new:
         parser.error("--title 只能与 --new 使用")
+    changes = {key: value for key, value in (
+        ("status", args.status), ("next_action", args.next_action), ("priority", args.priority),
+        ("stage", args.stage), ("depends_on", args.depends_on), ("blocked_by", args.blocked_by),
+    ) if value is not None}
+    if args.clear_stage:
+        changes["stage"] = None
+    if args.clear_dependencies:
+        changes["depends_on"] = []
+    if args.clear_blockers:
+        changes["blocked_by"] = []
+    if changes and not args.update:
+        parser.error("状态、阶段、下一步和依赖选项只用于 --update")
+    if args.attach and (not args.source or not args.category or not args.label):
+        parser.error("--attach 需要 --source、--category 和 --label")
+    if (args.source or args.category) and not args.attach:
+        parser.error("--source/--category 只用于 --attach")
+    if (args.heading is not None or args.link_from is not None) and args.link is None:
+        parser.error("--from/--heading 只用于 --link")
+    if args.label is not None and not args.attach and args.link is None:
+        parser.error("--label 只用于 --attach 或 --link")
     root = args.root.resolve()
     if not root.is_dir():
         parser.error("指定的根目录不存在")
     try:
+        if args.update:
+            path = update_item(root, args.update, changes)
+            print(f"已更新显式字段及派生视图: {path.relative_to(root)}；正文、验收结论与起点基线未自动改写。")
+            return 0
+        if args.attach:
+            path, link = attach_file(root, args.attach, args.source, args.category, args.label)
+            print(f"已保存原件与身份索引: {path.relative_to(root)}\n{link}\n未判断原件结论或代替业务验收。")
+            return 0
+        if args.link is not None:
+            label = args.label if args.label is not None else args.link.name or "项目入口"
+            print(local_link(root, args.link_from or Path("README.md"), args.link, label, args.heading))
+            return 0
         if args.new:
             path, errors = new_item(root, args.new, args.title)
             print(f"已创建: {path.relative_to(root)}（Schema 4，planned；范围与 AC 待填写）")

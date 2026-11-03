@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import json
 import re
 import sys
 import tempfile
@@ -79,7 +80,16 @@ class Item:
 
     def value(self, key: str) -> str:
         default = "P2" if key == "priority" and self.values.get("schema_version", "").strip("'\"") == "4" else ""
-        value = self.values.get(key, default).strip().strip("'\"")
+        raw = self.values.get(key, default).strip()
+        if raw.startswith('"'):
+            try:
+                value = json.loads(raw)
+            except json.JSONDecodeError:
+                value = raw.strip('"')
+            if not isinstance(value, str):
+                raise ValueError(f"{key} 必须是字符串")
+        else:
+            value = raw.strip("'")
         return default if value in {"null", "~"} else value
 
     def baseline(self) -> str:
@@ -92,14 +102,14 @@ class Item:
         try:
             parsed = ast.literal_eval(raw)
         except (SyntaxError, ValueError) as exc:
-            raise ValueError(f"{key} 必须是内联列表") from exc
+            raise ValueError(f'{key} 必须是带引号的内联列表，如 ["G-CONTRACT"]；可用 maintain --update ID 写入依赖') from exc
         if not isinstance(parsed, (list, tuple)):
             raise ValueError(f"{key} 必须是内联列表")
         return [str(value).strip().strip("'\"") for value in parsed if str(value).strip()]
 
 
-def frontmatter(path: Path) -> dict[str, str]:
-    lines = path.read_text(encoding="utf-8").splitlines()
+def frontmatter(path: Path, text: str | None = None) -> dict[str, str]:
+    lines = (path.read_text(encoding="utf-8") if text is None else text).splitlines()
     if not lines or lines[0] != "---":
         raise ValueError("缺少起始 YAML 分隔符")
     try:
@@ -198,7 +208,7 @@ def stage_is_defined(text: str, stage: str) -> bool:
 def record_entry_targets(path: Path, text: str, item: Item | None = None) -> set[Path]:
     """Resolve document navigation, excluding examples and tool results."""
     text = without_tool_results(text)
-    parts = text.split("---", 2) if text.startswith("---\n") else []
+    parts = re.split(r"(?m)^---\r?$", text, maxsplit=2) if text.startswith(("---\n", "---\r\n")) else []
     body = parts[2] if len(parts) == 3 else text
     body = re.sub(r"<!--.*?-->", "", without_fences(body), flags=re.DOTALL)
     body = re.sub(r"(`+).*?\1", "", body)
@@ -222,11 +232,8 @@ def record_entry_targets(path: Path, text: str, item: Item | None = None) -> set
     return targets
 
 
-def validate_record_layout(path: Path, text: str, item: Item) -> None:
-    """Check current records without migrating frozen or archived history."""
-    if item.value("status") in TERMINAL or item.value("document_status") == "archived":
-        return
-    targets = record_entry_targets(path, text, item)
+def artifact_entry_targets(path: Path, targets: set[Path]) -> set[Path]:
+    """Read batch entrances from the README and its linked living documents."""
     standard = {"README.md", "spec.md", "plan.md", "log.md", "evidence.md"}
     artifact_targets = set(targets)
     # Linked living documents can index batches without growing the README.
@@ -239,6 +246,16 @@ def validate_record_layout(path: Path, text: str, item: Item) -> None:
             continue
         if (len(relative.parts) == 1 and source.name in standard) or relative.parts[0] == "topics":
             artifact_targets.update(record_entry_targets(source, source.read_text(encoding="utf-8")))
+    return artifact_targets
+
+
+def validate_record_layout(path: Path, text: str, item: Item) -> None:
+    """Check current records without migrating frozen or archived history."""
+    if item.value("status") in TERMINAL or item.value("document_status") == "archived":
+        return
+    targets = record_entry_targets(path, text, item)
+    standard = {"README.md", "spec.md", "plan.md", "log.md", "evidence.md"}
+    artifact_targets = artifact_entry_targets(path, targets)
     problems: list[str] = []
     artifact_files: list[Path] = []
     for child in sorted(path.parent.rglob("*")):
@@ -250,7 +267,7 @@ def validate_record_layout(path: Path, text: str, item: Item) -> None:
         if relative.parts[0] == "artifacts":
             artifact_files.append(child)
             if len(relative.parts) < 3:
-                problems.append(f"附件缺少分类或批次目录: {relative.as_posix()}")
+                problems.append(f"附件缺少分类或批次目录: {relative.as_posix()}；放入 artifacts/<类别或批次>/，或使用 maintain --attach ID --source 文件 --category checks")
             continue
         if child.suffix.lower() != ".md":
             problems.append(f"非约定产物路径: {relative.as_posix()}；附件放 artifacts/<类别或批次>/")
@@ -278,7 +295,7 @@ def declared_acceptance(path: Path, text: str, item: Item) -> set[str]:
     return set(re.findall(r"\bAC-\d+\b", without_fences(source)))
 
 
-def validate_schema4(path: Path, item: Item) -> None:
+def validate_schema4(path: Path, item: Item, original: str | None = None) -> None:
     for key in REQUIRED_SCHEMA4:
         if not item.value(key):
             raise ValueError(f"Schema 4 字段 {key} 不能为空")
@@ -289,7 +306,7 @@ def validate_schema4(path: Path, item: Item) -> None:
         datetime.fromisoformat(item.value("updated_at"))
     except ValueError as exc:
         raise ValueError("Schema 4 日期必须使用实际 ISO 日期或时间") from exc
-    original = path.read_text(encoding="utf-8")
+    original = path.read_text(encoding="utf-8") if original is None else original
     if (CHECK_START in original or CHECK_END in original) and (original.count(CHECK_START) != 1 or original.count(CHECK_END) != 1 or original.index(CHECK_START) > original.index(CHECK_END)):
         raise ValueError("工具检查受控区块标记必须恰好各一个且顺序正确")
     text = without_tool_results(original)
@@ -353,7 +370,7 @@ def validate_schema4(path: Path, item: Item) -> None:
             raise ValueError("completed 必须逐项覆盖 Spec 或 README 已声明的 AC")
 
 
-def load_items(root: Path | None = None) -> tuple[list[Item], list[str]]:
+def load_items(root: Path | None = None, overrides: dict[Path, str] | None = None) -> tuple[list[Item], list[str]]:
     items: list[Item] = []
     errors: list[str] = []
     seen: set[str] = set()
@@ -367,7 +384,8 @@ def load_items(root: Path | None = None) -> tuple[list[Item], list[str]]:
             errors.append(f"{label}: 缺少 README.md")
             continue
         try:
-            values = frontmatter(path)
+            candidate = (overrides or {}).get(path)
+            values = frontmatter(path, candidate)
             schema = values.get("schema_version", "").strip("'\"")
             missing = sorted((REQUIRED_SCHEMA4 if schema == "4" else REQUIRED) - values.keys())
             if missing:
@@ -423,7 +441,7 @@ def load_items(root: Path | None = None) -> tuple[list[Item], list[str]]:
             if terminal and schema != "4" and not (has_evidence or has_legacy_source):
                 raise ValueError("终态工作项必须包含 evidence.md，或显式归档 source.md.txt")
             if schema == "4":
-                validate_schema4(path, item)
+                validate_schema4(path, item, candidate)
             items.append(item)
         except (OSError, ValueError) as exc:
             errors.append(f"{label}: {exc}")
@@ -519,7 +537,7 @@ def management_block(items: list[Item]) -> str:
 
 def replace_block(path: Path, generated: str, write: bool) -> bool:
     original = path.read_text(encoding="utf-8")
-    if original.count(START) != 1 or original.count(END) != 1:
+    if original.count(START) != 1 or original.count(END) != 1 or original.index(START) > original.index(END):
         raise ValueError(f"{path}: 必须且只能包含一个受控区块")
     before, remainder = original.split(START, 1)
     _, after = remainder.split(END, 1)

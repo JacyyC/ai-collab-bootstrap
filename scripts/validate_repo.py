@@ -25,7 +25,8 @@ def main() -> int:
                 "scripts/install_skill.py", "scripts/sync_templates.py", "docs/VALIDATION.md",
                 "skills/ai-collab-bootstrap/SKILL.md", "skills/ai-collab-bootstrap/LICENSE",
                 "skills/ai-collab-bootstrap/classification-rules.md", "skills/ai-collab-bootstrap/consistency-check.md",
-                "skills/ai-collab-bootstrap/references/agent-setup.md", "skills/ai-collab-bootstrap/scripts/bootstrap.py",
+                "skills/ai-collab-bootstrap/references/agent-setup.md", "skills/ai-collab-bootstrap/references/workspace-upgrade.md",
+                "skills/ai-collab-bootstrap/scripts/bootstrap.py",
                 "skills/ai-collab-bootstrap/agents/openai.yaml", "skills/ai-collab-bootstrap/templates/.template-manifest.json"]
     structure = [f"缺少发行入口：{name}" for name in required if not (ROOT / name).is_file()]
     if (ROOT / ".trae").exists():

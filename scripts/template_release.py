@@ -19,7 +19,7 @@ STATIC = (
     "workspace/docs/PROJECT_LAYOUT.md", "workspace/docs/WORK.md", "workspace/docs/HISTORY.md",
     "workspace/docs/work-items/records/.gitkeep",
 )
-RUNTIME = ("maintain.py", "workspace_views.py", "document_health_check.py", "markdown_checks.py")
+RUNTIME = ("maintain.py", "record_tools.py", "workspace_views.py", "document_health_check.py", "markdown_checks.py")
 MANIFEST = ".template-manifest.json"
 VIEW_RE = re.compile(r"<!-- workspace-view:start -->.*?<!-- workspace-view:end -->", re.DOTALL)
 

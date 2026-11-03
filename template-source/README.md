@@ -27,6 +27,8 @@ python3 workspace/scripts/maintain.py --checkpoint TASK-01
 
 新建仅产生 planned 单页，填写实际范围和 AC 后实施。复杂时使用项目内五份模板，按需拆分。工具检查不证明业务通过。
 
+机械字段可用 `--update`，原件可用 `--attach`，章节链接可用只读 `--link`；完整示例见[本地维护合同](workspace/docs/DOCUMENT_LIFECYCLE.md#机械字段、附件与链接)。任务记录只填写本次事实与入口，不复写协议。
+
 - [工作区说明](workspace/README.md)、[按需文档入口](workspace/docs/README.md)、[历史](workspace/docs/HISTORY.md)。
 - [内容归属](workspace/docs/DOCUMENTATION_POLICY.md)、[记录合同](workspace/docs/DOCUMENT_LIFECYCLE.md)、[运行文件布局](workspace/docs/PROJECT_LAYOUT.md)。
 

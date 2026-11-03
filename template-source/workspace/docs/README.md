@@ -15,10 +15,13 @@ governance_schema: 4
 | 当前范围、AC、下一步、阻塞与实际验证 | 工作项 README；拆分正文按其链接读取 |
 | 内容归属、现行约定回流与证据复用 | [Policy](DOCUMENTATION_POLICY.md) |
 | 字段、状态、文件组织、修复深度、验收与检查点 | [Lifecycle](DOCUMENT_LIFECYCLE.md) |
+| 结构化字段更新、分类附件和真实章节链接 | [维护命令](DOCUMENT_LIFECYCLE.md#机械字段、附件与链接) |
 | 源码、测试、工具、配置、资源的归位与迁移 | [Layout](PROJECT_LAYOUT.md) |
 | 规划与活动、终态历史 | [WORK](WORK.md)、[HISTORY](HISTORY.md) |
 
 五份本地模板库存：[README](../templates/work-item/README.md)、[Spec](../templates/work-item/spec.md)、[Plan](../templates/work-item/plan.md)、[Log](../templates/work-item/log.md)、[Evidence](../templates/work-item/evidence.md)。实际任务默认只创建 README。
+
+实例只填写任务事实，规则通过短链接进入。README 保留当前范围、下一步与正文入口，历史原因和多批验证影响阅读时按职责拆开；不以文件数量评定质量。证据的适用身份与原件入口见 [Policy](DOCUMENTATION_POLICY.md#现行约定与历史依据)。
 
 默认无需 project/docs、framework、Target、Roadmap、ADR 或第三管理页。已经有内容的说明按项目实际职责保留；需要新的长期目标或决定时，从当前项目约定或 Skill 随附可选模板建立。不得为了删空骨架删除用户事实。
 

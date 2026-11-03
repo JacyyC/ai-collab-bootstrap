@@ -38,6 +38,29 @@ ready/active 必须能从 README 验收章节或 Spec 找到 AC 声明；工具�
 
 范围复杂时建立 Spec，跨阶段实施时建立 Plan；过程或证据妨碍接手阅读时才拆 Log/Evidence。范围、实施步骤与结果分别维护，避免重复权威正文。
 
+### 拆分后的阅读顺序
+
+以能否直接找到当前范围、下一步和适用验证为判断，不设字数或文件数门槛。范围需要多处复用时抽到 Spec；实施顺序或恢复条件占据入口时抽到 Plan；历史原因或批次输出妨碍接手时抽到 Log/Evidence。只拆实际需要的一部分，无须一次建齐五份正文。
+
+拆分时将现行内容迁到唯一正文，README 保留短范围和对应链接；Spec/Plan 的 AC、Stage 身份连续，原始失败与原件位置不改。采用库存后按新文件位置重建相对链接，避免留下模板目录的引用。没有真实拆分操作时只说明未覆盖，不能把“知道怎么拆”记作拆分已经验证。
+
+### 机械字段、附件与链接
+
+以下命令在目标项目根执行。字段、原件和链接各有显式入口；它们不生成业务验收结论。
+
+```bash
+python3 workspace/scripts/maintain.py --update TASK-01 --status blocked --blocked-by G-CONTRACT --next-action "等待具名合同；继续独立检查"
+python3 workspace/scripts/maintain.py --update TASK-01 --clear-blockers --status active --stage TASK-01B --next-action "完成剩余命令行"
+python3 workspace/scripts/maintain.py --attach TASK-01 --source /path/to/first-failure.txt --category r1/checks --label "第一批失败原件"
+python3 workspace/scripts/maintain.py --link workspace/docs/DOCUMENT_LIFECYCLE.md --from workspace/docs/work-items/records/task-01/README.md --heading "检查点" --label "检查点规则"
+```
+
+`--update` 只处理调用者显式给出的 status、next_action、stage、priority、depends_on、blocked_by，并更新日期和派生视图。重复 `--depends-on` 或 `--blocked-by` 指定完整列表；清空用 `--clear-dependencies`、`--clear-blockers`、`--clear-stage`。正文、授权和 AC 先由执行者整理。所有字段及相关视图预先检查，非法候选不写入；工具不改 Git 索引或工作起点。显式选择 completed/cancelled 才填写关闭日期，现有终态证据校验仍生效。辅助写入拒绝旧 Schema、终态及归档项，不能借它批量升级历史。
+
+`--attach` 将已授权普通原件复制到 artifacts/<类别或批次>/，保留原件内容，并维护同批 attachment-index.json 的文件名、字节数和 SHA-256。相同字节可复用，不同内容同名拒绝覆盖，真实新执行使用新批次。README 只补缺失的批次入口；已有 Evidence 可以接管入口，避免逐文件展开。调用者随后核对证据适用身份和当前结论，不把索引作为第二状态账本。原件只存在外部时按 Policy 记录其限制；工具拒绝常见凭据文件、缓存和私有路径，调用者仍须确认原件可读取和保存。
+
+`--link` 只读输出项目相对链接，检查来源/目标及实际章节，处理空格和中文；没有章节需求时直接链接页面。避免在新增说明中手猜锚点。正常文本编辑可用局部补丁，不为记录内容另写脆弱的转义脚本。
+
 ### 文件组织与命名
 
 创建文件前先按 [内容归属](DOCUMENTATION_POLICY.md#现行约定与历史依据) 回流已有章节；只有内容需独立保存、引用或复核时才拆分。新建时明确用途、分类、命名和入口，不以对话轮次、执行次数或固定文件数量决定。不预建可选文件或目录。
